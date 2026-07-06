@@ -6,7 +6,7 @@
             <?php $i = 0; foreach ($subs as $s): $p = explode(';', $s, 4); $cls = ($i++ % 2 == 0) ? 'n0' : 'n1'; ?>
             <tr class="<?=$cls?>">
                 <td><?=$p[0]?></td><td><?=htmlspecialchars($p[1])?></td><td><?=htmlspecialchars($p[2])?></td>
-                <td><a href="login.php?view=subject&sid=<?=$p[0]?>&view_action=add_grade">Wejdź</a></td>
+                <td><a href="panel.php?view=subject&sid=<?=$p[0]?>&view_action=add_grade">Wejdź</a></td>
             </tr>
             <?php endforeach; ?>
         </table>
@@ -73,11 +73,11 @@
                     }
                 }
         ?>
-        <A HREF="login.php?view_action=add_grade"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
+        <A HREF="panel.php?view_action=add_grade"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
         <h3>Oceny: <?=htmlspecialchars($subject_name)?></h3>
         <div style="margin-bottom:8px;">
             Widok sekcji:
-            <form method="get" action="login.php" style="display:inline;">
+            <form method="get" action="panel.php" style="display:inline;">
                 <input type="hidden" name="view_action" value="add_grade">
                 <input type="hidden" name="view" value="subject">
                 <input type="hidden" name="sid" value="<?=$sid?>">
@@ -114,7 +114,7 @@
                 <td align="center" class="col-sticky-add">
                     <button class="btn-sm" onclick="toggleSection('ag_<?=$stId?>')">+</button>
                     <div id="ag_<?=$stId?>" class="hidden-section" onclick="event.stopPropagation()" style="position:absolute; background:#fff; border:1px solid #000; padding:8px; z-index:20; min-width:220px;">
-                        <form method="post" action="login.php?action=add_grade">
+                        <form method="post" action="panel.php?action=add_grade">
                             <input type="hidden" name="subject_id" value="<?=$sid?>">
                             <input type="hidden" name="student_id" value="<?=$stId?>">
                             <input type="hidden" name="view_action" value="add_grade">
@@ -182,7 +182,7 @@
         ?>
         <div id="<?=$cellId2?>">
             <b>Edycja ocen – <?=htmlspecialchars($ex2[1])?> (<?=htmlspecialchars($st2[1].' '.$st2[2])?>)</b><br>
-            <form method="post" action="login.php?action=edit_all_terms">
+            <form method="post" action="panel.php?action=edit_all_terms">
                 <input type="hidden" name="subject_id" value="<?=$sid?>">
                 <input type="hidden" name="exercise_id" value="<?=$eid2?>">
                 <input type="hidden" name="student_id" value="<?=$stId2?>">
@@ -216,7 +216,7 @@
             $sel_sid = $viewData['sel_sid'] ?? 0;
         ?>
         <h3>Oceny seryjne za ćwiczenie</h3>
-        <form method="get" action="login.php">
+        <form method="get" action="panel.php">
             <input type="hidden" name="view_action" value="batch_grading">
             Przedmiot: <select name="sid" onchange="this.form.submit()">
                 <option value="">-- wybierz --</option>
@@ -231,7 +231,7 @@
             $subject_exercises = $viewData['subject_exercises'] ?? [];
             $sel_eid = $viewData['sel_eid'] ?? 0;
         ?>
-        <form method="get" action="login.php">
+        <form method="get" action="panel.php">
             <input type="hidden" name="view_action" value="batch_grading">
             <input type="hidden" name="sid" value="<?=$sel_sid?>">
             Ćwiczenie: <select name="eid" onchange="this.form.submit()">
@@ -250,7 +250,7 @@
             foreach ($subject_exercises as $se) { if (intval($se[0]) === $sel_eid) $exName_b = $se[1]; }
         ?>
         <h4>Oceny dla: <?=htmlspecialchars($exName_b)?></h4>
-        <form method="post" action="login.php?action=save_batch_grades&view_action=batch_grading">
+        <form method="post" action="panel.php?action=save_batch_grades&view_action=batch_grading">
             <input type="hidden" name="subject_id" value="<?=$sel_sid?>">
             <input type="hidden" name="exercise_id" value="<?=$sel_eid?>">
             <table CELLPADDING="2" CELLSPACING="0" BORDER="1" class="border" cellpadding="4">
@@ -302,7 +302,7 @@
             $sel_sid = $viewData['sel_sid'] ?? 0;
         ?>
         <h3>Oceny końcowe z przedmiotu</h3>
-        <form method="get" action="login.php">
+        <form method="get" action="panel.php">
             <input type="hidden" name="view_action" value="final_grades_view">
             Przedmiot: <select name="sid" onchange="this.form.submit()">
                 <option value="">-- wybierz --</option>
@@ -341,7 +341,7 @@
             <tr class="<?=$cls?>">
                 <td><?=htmlspecialchars("{$stud[1]} {$stud[2]} ({$stud[5]})")?></td>
                 <td align="center" style="<?=$avgStyle?>"><?=$avgDisplay?><?=$statusInfo?></td>
-                <form method="post" action="login.php?action=save_final_grade">
+                <form method="post" action="panel.php?action=save_final_grade">
                     <input type="hidden" name="subject_id" value="<?=$sel_sid?>">
                     <input type="hidden" name="student_id" value="<?=$stId?>">
                     <td align="center">
@@ -365,5 +365,3 @@
         </table>
         <?php endif; ?>
         <?php endif; ?>
-
-

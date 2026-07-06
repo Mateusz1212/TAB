@@ -3,7 +3,7 @@
             $sel_sid = $viewData['sel_sid'] ?? 0;
         ?>
         <h3>Zwolnienia z ćwiczeń</h3>
-        <form method="get" action="login.php">
+        <form method="get" action="panel.php">
             <input type="hidden" name="view_action" value="manage_exemptions">
             Przedmiot: <select name="sid" onchange="this.form.submit()">
                 <option value="">-- wybierz --</option>
@@ -22,7 +22,7 @@
             foreach ($subs as $s) { $p = explode(';', $s); if (intval($p[0]) === $sel_sid) $subName_e = $p[1]; }
         ?>
         <h4>Zwolnienia – <?=htmlspecialchars($subName_e)?></h4>
-        <form method="post" action="login.php?action=save_exemptions&view_action=manage_exemptions&sid=<?=$sel_sid?>">
+        <form method="post" action="panel.php?action=save_exemptions&view_action=manage_exemptions&sid=<?=$sel_sid?>">
             <input type="hidden" name="subject_id" value="<?=$sel_sid?>">
             <div style="overflow-x:auto;">
             <table CELLPADDING="2" CELLSPACING="0" BORDER="1" class="border" cellpadding="4">
@@ -113,7 +113,7 @@
         <hr>
         <?php endif; ?>
         <h4>Filtrowanie</h4>
-        <form method="get" action="login.php">
+        <form method="get" action="panel.php">
             <input type="hidden" name="view_action" value="student_logs_view">
             Student: <input type="text" name="f_student" value="<?=htmlspecialchars($filters['student']??'')?>" placeholder="Imię, nazwisko lub album"><br>
             Data od: <input type="date" name="f_date_from" value="<?=htmlspecialchars($filters['d_from']??'')?>">&nbsp;
@@ -128,7 +128,7 @@
                 <?php foreach ($ip_list as $ip_addr) echo "<option value='" . htmlspecialchars($ip_addr) . "'" . ($selected_ip===$ip_addr?' selected':'') . ">" . htmlspecialchars($ip_addr) . "</option>"; ?>
             </select><br>
             <input type="submit" value="Filtruj">
-            <a href="login.php?view_action=student_logs_view">[Wyczyść filtry]</a>
+            <a href="panel.php?view_action=student_logs_view">[Wyczyść filtry]</a>
         </form>
         <hr>
         <h4>Rejestr logowań (znaleziono: <?=$total_items?>)</h4>
@@ -149,11 +149,11 @@
         </table>
         <?php if ($total_pages > 1): ?>
         <div class="pagination">
-            <a href="login.php?view_action=student_logs_view&page=<?=max(1,$page-1)?><?=$filterParams?>" class="<?=($page<=1?'disabled':'')?>">&laquo;</a>
+            <a href="panel.php?view_action=student_logs_view&page=<?=max(1,$page-1)?><?=$filterParams?>" class="<?=($page<=1?'disabled':'')?>">&laquo;</a>
             <?php for ($pg = 1; $pg <= $total_pages; $pg++): ?>
-                <a href="login.php?view_action=student_logs_view&page=<?=$pg?><?=$filterParams?>" class="<?=($pg===$page?'active':'')?>"><?=$pg?></a>
+                <a href="panel.php?view_action=student_logs_view&page=<?=$pg?><?=$filterParams?>" class="<?=($pg===$page?'active':'')?>"><?=$pg?></a>
             <?php endfor; ?>
-            <a href="login.php?view_action=student_logs_view&page=<?=min($total_pages,$page+1)?><?=$filterParams?>" class="<?=($page>=$total_pages?'disabled':'')?>">&raquo;</a>
+            <a href="panel.php?view_action=student_logs_view&page=<?=min($total_pages,$page+1)?><?=$filterParams?>" class="<?=($page>=$total_pages?'disabled':'')?>">&raquo;</a>
         </div>
         <small>Pokazano <?=($total_items>0?$offset+1:0)?>-<?=min($offset+$perPage,$total_items)?> z <?=$total_items?></small>
         <?php endif; ?>
@@ -187,7 +187,7 @@
             $pv_stName    = $pv_stud ? htmlspecialchars("{$pv_stud[1]} {$pv_stud[2]}") : "Student ID: $ss_preview_stid";
             $pv_stAlbum   = $pv_stud[5] ?? '';
         ?>
-        <A HREF="login.php?view_action=szukaj_studenta&ss_q=<?=urlencode($ss_q)?>&ss_stid=<?=$ss_preview_stid?>"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
+        <A HREF="panel.php?view_action=szukaj_studenta&ss_q=<?=urlencode($ss_q)?>&ss_stid=<?=$ss_preview_stid?>"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
         <h4>Oceny studenta: <?=$pv_stName?> <?= $pv_stAlbum ? "({$pv_stAlbum})" : '' ?></h4>
         <h4>Przedmiot: <?=htmlspecialchars($pv_subj_name)?> <?=htmlspecialchars($pv_subj_rok)?></h4>
 
@@ -453,12 +453,12 @@
 
         <?php else: ?>
 
-        <form method="get" action="login.php" style="margin-bottom:10px;">
+        <form method="get" action="panel.php" style="margin-bottom:10px;">
             <input type="hidden" name="view_action" value="szukaj_studenta">
             Szukaj: <input type="text" name="ss_q" value="<?=htmlspecialchars($ss_q)?>" placeholder="imię lub nazwisko studenta">
             <input type="submit" value="Szukaj">
             <?php if ($ss_q !== ''): ?>
-                <a href="login.php?view_action=szukaj_studenta">[Wyczyść]</a>
+                <a href="panel.php?view_action=szukaj_studenta">[Wyczyść]</a>
             <?php endif; ?>
         </form>
 
@@ -480,7 +480,7 @@
                 <td><?=htmlspecialchars($sub_row['name'])?></td>
                 <td><?=htmlspecialchars($sub_row['owner'])?></td>
                 <td>
-                    <a href="login.php?view_action=szukaj_studenta&ss_q=<?=urlencode($ss_q)?>&ss_stid=<?=$stid?>&ss_sid=<?=$sub_row['sid']?>">Podgląd ocen</a>
+                    <a href="panel.php?view_action=szukaj_studenta&ss_q=<?=urlencode($ss_q)?>&ss_stid=<?=$stid?>&ss_sid=<?=$sub_row['sid']?>">Podgląd ocen</a>
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -491,5 +491,3 @@
 
         <?php endif; ?>
         <?php endif; ?>
-
-

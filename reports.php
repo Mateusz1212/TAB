@@ -98,7 +98,7 @@
                     return 'do sprawdzenia';
                 }
         ?>
-        <A HREF="login.php?view_action=manage_reports"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
+        <A HREF="panel.php?view_action=manage_reports"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
         <h3>Szczegóły sprawozdania</h3>
         <table border="0" cellpadding="0" cellspacing="0" style="width:100%; vertical-align:top;">
         <tr>
@@ -139,7 +139,7 @@
             <?php if ($detail_is_zal): ?>
                 Sprawozdanie jest już <b>ZALICZONE</b>. Nie można zmienić statusu.
             <?php else: ?>
-            <form method="post" action="login.php?action=evaluate_report" onsubmit="sessionStorage.setItem('after_report_redirect','manage_reports');">
+            <form method="post" action="panel.php?action=evaluate_report" onsubmit="sessionStorage.setItem('after_report_redirect','manage_reports');">
                 <input type="hidden" name="report_id"   value="<?=$detail_rid?>">
                 <input type="hidden" name="subject_id"  value="<?=$detail_subId?>">
                 <input type="hidden" name="student_id"  value="<?=$detail_stId?>">
@@ -253,7 +253,7 @@
                 <td><?=htmlspecialchars($sub_nm[$pr['subId']]??'???')?></td>
                 <td><?=htmlspecialchars($ex_nm[$pr['exId']]??'???')?></td>
                 <td><?=$st_nm[$pr['stId']]??'???'?></td>
-                <td><a href="login.php?view_action=manage_reports&view=report_detail&rid=<?=$pr['rid']?>&sid=<?=$pr['subId']?>">Wejdź</a></td>
+                <td><a href="panel.php?view_action=manage_reports&view=report_detail&rid=<?=$pr['rid']?>&sid=<?=$pr['subId']?>">Wejdź</a></td>
             </tr>
             <?php endforeach; ?>
         </table>
@@ -281,7 +281,7 @@
                 $cls = ($i++ % 2 === 0) ? 'n0' : 'n1';
                 echo "<tr class='{$cls}'>";
                 echo "<td>{$p[0]}</td><td>".htmlspecialchars($p[1])."</td><td>".htmlspecialchars($p[2])."</td>";
-                echo "<td><a href='login.php?view_action=edit_reports&sid={$p[0]}'>Wybierz</a></td>";
+                echo "<td><a href='panel.php?view_action=edit_reports&sid={$p[0]}'>Wybierz</a></td>";
                 echo "</tr>";
             }
             ?>
@@ -302,11 +302,11 @@
             if ($er_msg) echo "<div style='color:green; font-weight:bold; margin-bottom:8px;'>".htmlspecialchars($er_msg)."</div>";
             if ($er_err) echo "<div style='color:red;   font-weight:bold; margin-bottom:8px;'>".htmlspecialchars($er_err)."</div>";
         ?>
-        <A HREF="login.php?view_action=edit_reports"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
+        <A HREF="panel.php?view_action=edit_reports"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
         <h4>Przedmiot: <?php echo htmlspecialchars($er_subject_name); ?></h4>
 
         <h4>Wpisanie zaliczonego sprawozdania (bez pliku studenta)</h4>
-        <form method="post" action="login.php?action=er_add_report&view_action=edit_reports&sid=<?php echo $sel_sid; ?>">
+        <form method="post" action="panel.php?action=er_add_report&view_action=edit_reports&sid=<?php echo $sel_sid; ?>">
             <input type="hidden" name="subject_id" value="<?php echo $sel_sid; ?>">
             Student:
             <select name="student_id" required>
@@ -394,7 +394,7 @@
                 <td style="white-space:nowrap;"><?= htmlspecialchars($h['date']) ?></td>
                 <td style="overflow:hidden; text-overflow:ellipsis; white-space:nowrap;" title="<?= htmlspecialchars($h['comment']) ?>"><?= htmlspecialchars($h['comment']) ?></td>
                 <td align="center">
-                    <form method="post" action="login.php?action=er_edit_history&view_action=edit_reports&sid=<?= $sel_sid ?>" style="margin:0;" id="f_<?= $hid ?>">
+                    <form method="post" action="panel.php?action=er_edit_history&view_action=edit_reports&sid=<?= $sel_sid ?>" style="margin:0;" id="f_<?= $hid ?>">
                         <input type="hidden" name="history_id" value="<?= $hid ?>">
                         <input type="hidden" name="report_id"  value="<?= $rid ?>">
                         <select name="new_status" style="width:100%; font-size:0.85em;">
@@ -411,7 +411,7 @@
                     </form>
                 </td>
                 <td align="center">
-                    <a href="login.php?action=er_delete_history&view_action=edit_reports&sid=<?= $sel_sid ?>&hid=<?= $hid ?>&rid=<?= $rid ?>"
+                    <a href="panel.php?action=er_delete_history&view_action=edit_reports&sid=<?= $sel_sid ?>&hid=<?= $hid ?>&rid=<?= $rid ?>"
                        onclick="return confirm('Na pewno usunąć ten wpis historii?')"
                        style="color:#c0392b; font-weight:bold;">&times;</a>
                 </td>
@@ -447,7 +447,7 @@
         <h3>Wydruk sprawozdań</h3>
 
         // Wybór przedmiotu
-        <form method="get" action="login.php" style="margin-bottom:10px;">
+        <form method="get" action="panel.php" style="margin-bottom:10px;">
             <input type="hidden" name="view_action" value="wydruk_sprawozdan">
             Przedmiot:
             <select name="sid" onchange="this.form.submit()">
@@ -470,7 +470,7 @@
         ?>
 
         // Formularz filtrów
-        <form method="get" action="login.php" style="margin-bottom:12px; background:#f5f5f5; padding:8px; border:1px solid #ccc;">
+        <form method="get" action="panel.php" style="margin-bottom:12px; background:#f5f5f5; padding:8px; border:1px solid #ccc;">
             <input type="hidden" name="view_action" value="wydruk_sprawozdan">
             <input type="hidden" name="sid" value="<?=$wsp_sid?>">
             <input type="hidden" name="wsp_page" value="1">
@@ -507,7 +507,7 @@
                     </select>
                 </td>
                 <td><input type="submit" value="Filtruj"></td>
-                <td><a href="login.php?view_action=wydruk_sprawozdan&sid=<?=$wsp_sid?>">Wyczyść filtry</a></td>
+                <td><a href="panel.php?view_action=wydruk_sprawozdan&sid=<?=$wsp_sid?>">Wyczyść filtry</a></td>
             </tr>
             </table>
         </form>
@@ -536,7 +536,7 @@
         $wsp_offset = ($wsp_page - 1) * $wsp_per_page;
         $wsp_page_rows = array_slice($wsp_filtered, $wsp_offset, $wsp_per_page);
 
-        $wsp_base_url = 'login.php?view_action=wydruk_sprawozdan'
+        $wsp_base_url = 'panel.php?view_action=wydruk_sprawozdan'
             . '&sid=' . $wsp_sid
             . '&wsp_status=' . urlencode($wsp_status)
             . '&wsp_eid=' . $wsp_eid

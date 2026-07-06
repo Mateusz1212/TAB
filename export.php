@@ -3,7 +3,7 @@
         <h3>Eksport Danych (CSV/PDF)</h3>
         <div style="margin-bottom:12px;">
             <b>Eksport CSV</b>
-            <form method="post" action="login.php?action=export_csv">
+            <form method="post" action="panel.php?action=export_csv">
                 Przedmiot:
                 <select name="subject_id" required>
                     <option value="">-- wybierz --</option>
@@ -20,7 +20,7 @@
         </div>
         <div style="margin-bottom:12px;">
             <b>Raport PDF</b>
-            <form method="post" action="login.php?action=export_pdf_report">
+            <form method="post" action="panel.php?action=export_pdf_report">
                 Przedmiot:
                 <select name="subject_id" required>
                     <option value="">-- wybierz --</option>
@@ -33,7 +33,7 @@
         </div>
         <div style="margin-bottom:12px;">
             <b>Lista ćwiczeń PDF</b>
-            <form method="post" action="login.php?action=export_pdf_exercises">
+            <form method="post" action="panel.php?action=export_pdf_exercises">
                 Przedmiot:
                 <select name="subject_id" required>
                     <option value="">-- wybierz --</option>
@@ -46,7 +46,7 @@
         </div>
         <div style="margin-bottom:12px;">
             <b>Lista zrealizowanych ćwiczeń PDF</b>
-            <form method="post" action="login.php?action=export_pdf_exercises_done">
+            <form method="post" action="panel.php?action=export_pdf_exercises_done">
                 Przedmiot:
                 <select name="subject_id" required>
                     <option value="">-- wybierz --</option>
@@ -80,7 +80,7 @@
         <h3>Ogłoszenia</h3>
         <button onclick="toggleSection('addAnnForm')" style="margin-bottom:8px;">[+] Dodaj Ogłoszenie</button>
         <div id="addAnnForm" class="hidden-section">
-            <form method="post" action="login.php?action=add_announcement&view_action=manage_announcements">
+            <form method="post" action="panel.php?action=add_announcement&view_action=manage_announcements">
                 Tytuł: <input type="text" name="title" required><br>
                 Treść: <textarea name="content" rows="4" style="width:95%; box-sizing:border-box;" required></textarea><br>
                 Widoczne dla:
@@ -125,7 +125,7 @@
                     echo "<td>{$target_display}</td>";
                     echo "<td>{$author_display}</td>";
                     echo "<td>{$readers_count}</td>";
-                    echo "<td><a href='login.php?view_action=manage_announcements&ann_readers={$id}'>Kto przeczytał</a> | <a href='login.php?action=delete_announcement&aid={$id}&view_action=manage_announcements' onclick='return confirm(\"Usunąć ogłoszenie?\")' style='color:red;'>Usuń</a></td>";
+                    echo "<td><a href='panel.php?view_action=manage_announcements&ann_readers={$id}'>Kto przeczytał</a> | <a href='panel.php?action=delete_announcement&aid={$id}&view_action=manage_announcements' onclick='return confirm(\"Usunąć ogłoszenie?\")' style='color:red;'>Usuń</a></td>";
                     echo "</tr>";
                 }
             }
@@ -162,13 +162,13 @@
         ?>
         <h3>Podania studentów</h3>
         <div style="margin-bottom:12px;">
-            <a href="login.php?view_action=manage_applications&tab=pending" style="font-weight:<?=($current_tab==='pending'?'bold':'normal');?>;<?=($current_tab==='pending'?'text-decoration:underline;':'')?>">
+            <a href="panel.php?view_action=manage_applications&tab=pending" style="font-weight:<?=($current_tab==='pending'?'bold':'normal');?>;<?=($current_tab==='pending'?'text-decoration:underline;':'')?>">
                 [OCZEKUJĄCE]
             </a> &nbsp;|&nbsp;
-            <a href="login.php?view_action=manage_applications&tab=accepted" style="font-weight:<?=($current_tab==='accepted'?'bold':'normal');?>; color:<?=($current_tab==='accepted'?'green':'#555');?>">
+            <a href="panel.php?view_action=manage_applications&tab=accepted" style="font-weight:<?=($current_tab==='accepted'?'bold':'normal');?>; color:<?=($current_tab==='accepted'?'green':'#555');?>">
                 [ZAAKCEPTOWANE]
             </a> &nbsp;|&nbsp;
-            <a href="login.php?view_action=manage_applications&tab=rejected" style="font-weight:<?=($current_tab==='rejected'?'bold':'normal');?>; color:<?=($current_tab==='rejected'?'red':'#555');?>">
+            <a href="panel.php?view_action=manage_applications&tab=rejected" style="font-weight:<?=($current_tab==='rejected'?'bold':'normal');?>; color:<?=($current_tab==='rejected'?'red':'#555');?>">
                 [ODRZUCONE]
             </a>
         </div>
@@ -202,7 +202,7 @@
                 </td>
                 <td>
                     <?php if ($current_tab === 'pending'): ?>
-                    <form method="post" action="login.php?action=evaluate_application" style="margin:0;">
+                    <form method="post" action="panel.php?action=evaluate_application" style="margin:0;">
                         <input type="hidden" name="app_id" value="<?=$appId?>">
                         <textarea name="comment" rows="2" style="width:98%; box-sizing:border-box; margin-bottom:5px;" placeholder="Komentarz..."></textarea><br>
                         <button type="submit" name="status" value="accepted" style="background:#27ae60; color:white; border:none; padding:4px 10px; cursor:pointer; font-weight:bold;">&#10004; Akceptuj</button>

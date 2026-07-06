@@ -10,7 +10,7 @@
             ?>
             <tr class="<?=$cls?>">
                 <td><?=$p[0]?></td><td><?=htmlspecialchars($p[1])?></td><td><?=htmlspecialchars($p[2])?></td>
-                <td><a href="login.php?view_action=manage_access&view=details&sid=<?=$sid?>">Zarządzaj</a></td>
+                <td><a href="panel.php?view_action=manage_access&view=details&sid=<?=$sid?>">Zarządzaj</a></td>
             </tr>
             <?php endforeach; ?>
             <?php if ($i === 0) echo "<tr><td colspan='4'>Brak własnych przedmiotów.</td></tr>"; ?>
@@ -23,11 +23,11 @@
             $access_list = $viewData['access_list'] ?? [];
             if ($subLine):
         ?>
-        <A HREF="login.php?view_action=manage_access"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
+        <A HREF="panel.php?view_action=manage_access"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
         <h3>Dostęp: <?=htmlspecialchars($subLine[1])?></h3>
         <button onclick="toggleSection('addCoTeacherForm')" style="margin-bottom:8px;">[+] Dodaj Współprowadzącego</button>
         <div id="addCoTeacherForm" class="hidden-section">
-            <form method="post" action="login.php?action=grant_access">
+            <form method="post" action="panel.php?action=grant_access">
                 <input type="hidden" name="subject_id" value="<?=$sid?>">
                 Prowadzący:
                 <select name="teacher_id" required>
@@ -137,7 +137,7 @@
                 <td><?=htmlspecialchars($acc['name'])?></td>
                 <td style="font-size:0.9em;"><?=$perms_display?></td>
                 <td align="center">
-                    <a href="login.php?action=revoke_access&sid=<?=$sid?>&tid=<?=$acc['id']?>&view_action=manage_access&view=details" onclick="return confirm('Odebrać dostęp?')" style="color:red;">Odbierz</a>
+                    <a href="panel.php?action=revoke_access&sid=<?=$sid?>&tid=<?=$acc['id']?>&view_action=manage_access&view=details" onclick="return confirm('Odebrać dostęp?')" style="color:red;">Odbierz</a>
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -150,7 +150,7 @@
 
         <?php if ($view_action === 'change_password_view'): ?>
         <h3>Zmień hasło (prowadzący)</h3>
-        <form method="post" action="login.php?action=change_password&view_action=change_password_view">
+        <form method="post" action="panel.php?action=change_password&view_action=change_password_view">
             Stare: <input type="password" name="old"><br>
             Nowe: <input type="password" name="new"><br>
             <input type="submit" value="Zmień hasło">
@@ -175,7 +175,7 @@
             <tr class="<?=$cls?>">
                 <td><?=htmlspecialchars($p[1])?></td>
                 <td><?=htmlspecialchars($p[2])?></td>
-                <td><a href="login.php?view_action=harmonogram&sid=<?=$p[0]?>">Wybierz</a></td>
+                <td><a href="panel.php?view_action=harmonogram&sid=<?=$p[0]?>">Wybierz</a></td>
             </tr>
             <?php endforeach; ?>
             <?php if ($i === 0) echo "<tr><td colspan='3'>Brak dostępnych przedmiotów.</td></tr>"; ?>
@@ -188,18 +188,18 @@
             $harm_sections     = $harm_data['sections']     ?? [];
             $harm_schedule     = $harm_data['schedule']     ?? [];
         ?>
-        <A HREF="login.php?view_action=harmonogram"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
+        <A HREF="panel.php?view_action=harmonogram"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
         <h4>Harmonogram: <?=htmlspecialchars($harm_subject_name)?></h4>
 
         <?php if (empty($harm_sections)): ?>
             <p style="color:#c0392b;">Brak zdefiniowanych sekcji dla tego przedmiotu.
-            <a href="login.php?view_action=manage_sections&sid=<?=$sel_sid?>">Dodaj sekcje</a>.</p>
+            <a href="panel.php?view_action=manage_sections&sid=<?=$sel_sid?>">Dodaj sekcje</a>.</p>
         <?php elseif (empty($harm_exercises)): ?>
             <p style="color:#c0392b;">Brak ćwiczeń przypisanych do tego przedmiotu.
-            <a href="login.php?view_action=manage_exercises&view=list&sid=<?=$sel_sid?>">Dodaj ćwiczenia</a>.</p>
+            <a href="panel.php?view_action=manage_exercises&view=list&sid=<?=$sel_sid?>">Dodaj ćwiczenia</a>.</p>
         <?php else: ?>
 
-        <form method="post" action="login.php?action=save_harmonogram&view_action=harmonogram&sid=<?=$sel_sid?>">
+        <form method="post" action="panel.php?action=save_harmonogram&view_action=harmonogram&sid=<?=$sel_sid?>">
             <input type="hidden" name="subject_id" value="<?=$sel_sid?>">
             <div style="overflow-x:auto;">
             <table CELLPADDING="2" CELLSPACING="0" BORDER="1" class="border" cellpadding="4" style="width:100%;">
@@ -241,5 +241,3 @@
         <?php endif; ?>
         <?php endif; ?>
         <?php endif; ?>
-
-

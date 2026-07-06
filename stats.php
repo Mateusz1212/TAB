@@ -1,11 +1,11 @@
-<?php /* ===== Statistics, Progress ranking, Student grade overview ===== */ ?>
+<?php /* Statistics, Progress ranking, Student grade overview */ ?>
         <?php if ($view_action === 'statistics'):
             $selected_sid = $viewData['selected_sid'] ?? 0;
             $stats_type = $viewData['stats_type'] ?? 'avg';
             $sort_desc = $viewData['sort_desc'] ?? false;
         ?>
         <h3>Statystyki</h3>
-        <form method="get" action="login.php">
+        <form method="get" action="panel.php">
             <input type="hidden" name="view_action" value="statistics">
             Przedmiot:
             <select name="subject_id" onchange="this.form.submit()">
@@ -190,7 +190,7 @@
             $selected_sid = $viewData['selected_sid'] ?? 0;
         ?>
         <h3>Postęp ćwiczeń studentów</h3>
-        <form method="get" action="login.php">
+        <form method="get" action="panel.php">
             <input type="hidden" name="view_action" value="progress_view">
             Przedmiot: <select name="subject_id" onchange="this.form.submit()">
                 <option value="">-- wybierz --</option>
@@ -245,7 +245,7 @@
             $sel_stid = $viewData['sel_stid'] ?? 0;
         ?>
         <h3>Przegląd ocen studenta</h3>
-        <form method="get" action="login.php">
+        <form method="get" action="panel.php">
             <input type="hidden" name="view_action" value="student_grades_view">
             Przedmiot: <select name="sid" onchange="this.form.submit()">
                 <option value="">-- wybierz --</option>
@@ -306,6 +306,4 @@
             <?php endforeach; ?>
         </table>
         <?php endif; ?>
-        <?php endif; // student_grades_view ?>
-
-
+        <?php endif; ?>

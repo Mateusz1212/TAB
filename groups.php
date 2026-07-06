@@ -5,7 +5,7 @@
             else {}
         ?>
         <h3>Zarządzanie Sekcjami</h3>
-        <form method="get" action="login.php">
+        <form method="get" action="panel.php">
             <input type="hidden" name="view_action" value="manage_sections">
             Przedmiot: <select name="sid" onchange="this.form.submit()">
                 <option value="">-- wybierz przedmiot --</option>
@@ -24,7 +24,7 @@
         <br>
         <button onclick="toggleSection('addSectionForm')" style="margin-bottom:8px;">[+] Dodaj Sekcję</button>
         <div id="addSectionForm" class="hidden-section">
-            <form method="post" action="login.php?action=add_defined_section">
+            <form method="post" action="panel.php?action=add_defined_section">
                 <input type="hidden" name="subject_id" value="<?=$sel_sid?>">
                 Nazwa sekcji: <input type="text" name="section_name" required placeholder="np. Lab 1, Grupa A...">
                 <input type="submit" value="Dodaj">
@@ -40,21 +40,21 @@
             <tr <?=($isActive?'class="nsh"':'')?>>
                 <td><?=$ds['id']?></td>
                 <td>
-                    <a href="login.php?view_action=manage_sections&sid=<?=$sel_sid?>&sec_id=<?=$ds['id']?>" style="<?=$nameStyle?>">
+                    <a href="panel.php?view_action=manage_sections&sid=<?=$sel_sid?>&sec_id=<?=$ds['id']?>" style="<?=$nameStyle?>">
                         <?=($isActive?'&raquo; ':'')?><?=htmlspecialchars($ds['name'])?>
                     </a>
                 </td>
                 <td>
                     <button onclick="toggleSection('editSecForm_<?=$ds['id']?>')" class="btn-sm">Edytuj</button>
                     <div id="editSecForm_<?=$ds['id']?>" class="hidden-section">
-                        <form method="post" action="login.php?action=edit_defined_section">
+                        <form method="post" action="panel.php?action=edit_defined_section">
                             <input type="hidden" name="subject_id" value="<?=$sel_sid?>">
                             <input type="hidden" name="section_id" value="<?=$ds['id']?>">
                             Nowa nazwa: <input type="text" name="section_name" value="<?=htmlspecialchars($ds['name'])?>" required>
                             <input type="submit" value="Zapisz">
                         </form>
                     </div>
-                    <a href="login.php?action=delete_defined_section&sid=<?=$sel_sid?>&sec_id=<?=$ds['id']?>" onclick="return confirm('Usunąć sekcję i wszystkie przypisania?')" style="color:red;">Usuń</a>
+                    <a href="panel.php?action=delete_defined_section&sid=<?=$sel_sid?>&sec_id=<?=$ds['id']?>" onclick="return confirm('Usunąć sekcję i wszystkie przypisania?')" style="color:red;">Usuń</a>
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -68,15 +68,15 @@
         <hr>
         <h4>Studenci w sekcji: <b><?=htmlspecialchars($sec_name)?></b></h4>
         <div style="margin-bottom:8px;">
-            <a href="login.php?view_action=batch_add_students_view&sid=<?=$sel_sid?>&sec_id=<?=$current_sec_id?>">[+ Dodaj studentów do sekcji]</a>
+            <a href="panel.php?view_action=batch_add_students_view&sid=<?=$sel_sid?>&sec_id=<?=$current_sec_id?>">[+ Dodaj studentów do sekcji]</a>
             &nbsp;|&nbsp;
-            <form method="post" action="login.php?action=sort_and_save_section" style="display:inline;">
+            <form method="post" action="panel.php?action=sort_and_save_section" style="display:inline;">
                 <input type="hidden" name="subject_id" value="<?=$sel_sid?>">
                 <input type="hidden" name="section_id" value="<?=$current_sec_id?>">
                 <input type="submit" value="&#8645; Sortuj A-Z">
             </form>
         </div>
-        <form method="post" action="login.php?action=move_students_section">
+        <form method="post" action="panel.php?action=move_students_section">
             <input type="hidden" name="sid" value="<?=$sel_sid?>">
             <input type="hidden" name="from_sec_id" value="<?=$current_sec_id?>">
             <table CELLPADDING="2" CELLSPACING="0" BORDER="1" class="border" cellpadding="4">
@@ -91,7 +91,7 @@
                     <td><?=htmlspecialchars($st[1] . ' ' . $st[2])?></td>
                     <td align="center"><?=htmlspecialchars($st[5])?></td>
                     <td align="center">
-                        <a href="login.php?action=remove_student_from_section&st_id=<?=$st[4]?>&sid=<?=$sel_sid?>&sec_id=<?=$current_sec_id?>" onclick="return confirm('Usunąć studenta z sekcji?')" style="color:red; font-weight:bold;">&times;</a>
+                        <a href="panel.php?action=remove_student_from_section&st_id=<?=$st[4]?>&sid=<?=$sel_sid?>&sec_id=<?=$current_sec_id?>" onclick="return confirm('Usunąć studenta z sekcji?')" style="color:red; font-weight:bold;">&times;</a>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -123,7 +123,7 @@
             else{}
         ?>
         <h3>Dodawanie studentów do przedmiotu</h3>
-        <form method="get" action="login.php">
+        <form method="get" action="panel.php">
             <input type="hidden" name="view_action" value="batch_add_students_view">
             Przedmiot: <select name="sid" onchange="this.form.submit()">
                 <option value="">-- wybierz przedmiot --</option>
@@ -141,13 +141,13 @@
         ?>
             <div style="background:#fee; padding:10px; border:1px solid #f99; margin-top:10px;">
                 <b style="color:#c0392b;">Brak zdefiniowanych sekcji!</b><br>
-                <a href="login.php?view_action=manage_sections&sid=<?=$sel_sid?>">Przejdź do zarządzania sekcjami</a>
+                <a href="panel.php?view_action=manage_sections&sid=<?=$sel_sid?>">Przejdź do zarządzania sekcjami</a>
             </div>
         <?php else:
             $pre_sec_id = $viewData['pre_sec_id'] ?? 0;
         ?>
         <br>
-        <form method="post" action="login.php?action=batch_add_students_process">
+        <form method="post" action="panel.php?action=batch_add_students_process">
             <input type="hidden" name="subject_id" value="<?=$sel_sid?>">
             Przypisz do sekcji:
             <select name="section_id" required>
@@ -188,5 +188,3 @@
         <?php endif; ?>
         <?php endif; ?>
         <?php endif; ?>
-
-

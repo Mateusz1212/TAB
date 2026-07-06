@@ -1,4 +1,4 @@
-    // SIDEBAR 
+// SIDEBAR 
     <div class="compact-sidebar">
         <h3>Panel Sterowania</h3>
         <div>
@@ -7,13 +7,13 @@
         </div>
         <hr>
         <div>
-            <a href="login.php?action=toggle_view<?php echo (!empty($_SERVER['QUERY_STRING']) ? '&' . str_replace('action=toggle_view', '', $_SERVER['QUERY_STRING']) : ''); ?>">
+            <a href="panel.php?action=toggle_view<?php echo (!empty($_SERVER['QUERY_STRING']) ? '&' . str_replace('action=toggle_view', '', $_SERVER['QUERY_STRING']) : ''); ?>">
                 [Przełącz na Widok Nowoczesny]
             </a>
             <br><br>
-            <a href="login.php">[Menu Główne]</a>
+            <a href="panel.php">[Menu Główne]</a>
             &nbsp;|&nbsp;
-            <a href="login.php?action=logout">[Wyloguj]</a>
+            <a href="panel.php?action=logout">[Wyloguj]</a>
         </div>
         <hr>
         <h4>Menu Główne</h4>
@@ -50,7 +50,7 @@
             ];
             foreach ($menu_items as $action_key => $description) {
                 $active = ($view_action === $action_key) ? ' style="font-weight:bold;"' : '';
-                echo "<li{$active}><a href='login.php?view_action={$action_key}'>{$description}</a></li>";
+                echo "<li{$active}><a href='panel.php?view_action={$action_key}'>{$description}</a></li>";
             }
             ?>
         </ul>
@@ -68,8 +68,7 @@
             var hasViewAction = (window.location.search.indexOf('view_action=') !== -1);
             if (redirectPending === 'manage_reports' && hasMsgInUrl && !hasViewAction) {
                 sessionStorage.removeItem('after_report_redirect');
-                window.location.replace('login.php?view_action=manage_reports');
+                window.location.replace('panel.php?view_action=manage_reports');
             }
         })();
         </script>
-

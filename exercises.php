@@ -9,7 +9,7 @@
             <?php $i = 0; foreach ($subs as $s): $p = explode(';', $s, 4); $cls = ($i++ % 2 == 0) ? 'n0' : 'n1'; ?>
             <tr class="<?=$cls?>">
                 <td><?=$p[0]?></td><td><?=htmlspecialchars($p[1])?></td><td><?=htmlspecialchars($p[2])?></td>
-                <td><a href="login.php?view_action=manage_exercises&view=list&sid=<?=$p[0]?>">Wejdź</a></td>
+                <td><a href="panel.php?view_action=manage_exercises&view=list&sid=<?=$p[0]?>">Wejdź</a></td>
             </tr>
             <?php endforeach; ?>
             <?php if ($i === 0) echo "<tr><td colspan='4'>Brak dostępnych przedmiotów.</td></tr>"; ?>
@@ -24,12 +24,12 @@
             $sid = intval($_GET['sid']);
             if ($subLine):
         ?>
-        <A HREF="login.php?view_action=manage_exercises"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
+        <A HREF="panel.php?view_action=manage_exercises"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
         <h3>Ćwiczenia: <?=htmlspecialchars($subLine[1])?><?=($ex_scope_view === 'own' ? ' <small style="color:#888;">(widok: tylko własne ćwiczenia)</small>' : '')?></h3>
         <?php if ($ex_scope_view === 'all'): ?>
         <button onclick="toggleSection('addExForm')" style="margin-bottom:8px;">[+] Dodaj Ćwiczenie</button>
         <div id="addExForm" class="hidden-section">
-            <form method="post" action="login.php?action=add_exercise">
+            <form method="post" action="panel.php?action=add_exercise">
                 <input type="hidden" name="subject_id" value="<?=$sid?>">
                 Nazwa: <input type="text" name="cw_name" required><br>
                 Waga: <select name="waga" required>
@@ -48,7 +48,7 @@
         <?php if (count($my_exercises) === 0): ?>
             <p>Brak ćwiczeń<?=($ex_scope_view === 'own' ? ' przypisanych do Ciebie' : '')?> w tym przedmiocie.</p>
         <?php else: ?>
-        <form method="post" action="login.php?action=reorder_exercises" id="reorderForm">
+        <form method="post" action="panel.php?action=reorder_exercises" id="reorderForm">
             <input type="hidden" name="sid" value="<?=$sid?>">
             <input type="hidden" name="exercise_order" id="exercise_order_input">
             <table CELLPADDING="2" CELLSPACING="0" BORDER="1" class="border" cellpadding="4" id="exercisesTable">
@@ -85,8 +85,8 @@
                     <td align="center"><?=$weight?></td>
                     <td align="center"><?=$t_name?></td>
                     <td>
-                        <a href="login.php?view_action=manage_exercises&view=edit_form&sid=<?=$sid?>&eid=<?=$eid?>">Edytuj</a> |
-                        <a href="login.php?action=delete_exercise&eid=<?=$eid?>&sid=<?=$sid?>" onclick="return confirm('Usunąć ćwiczenie?')" style="color:red;">Usuń</a>
+                        <a href="panel.php?view_action=manage_exercises&view=edit_form&sid=<?=$sid?>&eid=<?=$eid?>">Edytuj</a> |
+                        <a href="panel.php?action=delete_exercise&eid=<?=$eid?>&sid=<?=$sid?>" onclick="return confirm('Usunąć ćwiczenie?')" style="color:red;">Usuń</a>
                     </td>
                 </tr>
                 <?php endforeach; ?>
@@ -107,9 +107,9 @@
             $sid = intval($_GET['sid']);
             if ($exData):
         ?>
-        <A HREF="login.php?view_action=manage_exercises&view=list&sid=<?=$sid?>"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
+        <A HREF="panel.php?view_action=manage_exercises&view=list&sid=<?=$sid?>"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
         <h3>Edycja ćwiczenia: <?=htmlspecialchars($exData[1])?></h3>
-        <form method="post" action="login.php?action=edit_exercise">
+        <form method="post" action="panel.php?action=edit_exercise">
             <input type="hidden" name="eid" value="<?=intval($exData[0])?>">
             <input type="hidden" name="sid" value="<?=$sid?>">
             Nazwa: <input type="text" name="cw_name" value="<?=htmlspecialchars($exData[1])?>"><br>
@@ -176,7 +176,7 @@
             $selected_sid = $viewData['selected_sid'] ?? 0;
         ?>
         <h3>Terminy i wymagania zaliczenia ćwiczeń</h3>
-        <form method="get" action="login.php">
+        <form method="get" action="panel.php">
             <input type="hidden" name="view_action" value="manage_deadlines">
             Przedmiot:
             <select name="subject_id" onchange="this.form.submit()">
@@ -208,7 +208,7 @@
                     echo "<p>Brak ćwiczeń" . (($viewData['manage_exercises_scope'] ?? '') === 'own' ? " przypisanych do Ciebie" : "") . ".</p>";
                 } else {
         ?>
-        <form method="post" action="login.php?action=save_deadlines_bulk">
+        <form method="post" action="panel.php?action=save_deadlines_bulk">
     <input type="hidden" name="subject_id" value="<?=$selected_sid?>">
     <table CELLPADDING="2" CELLSPACING="0" BORDER="1" class="border" cellpadding="4" style="width:100%;">
         <tr style="background:#dde;">
@@ -277,5 +277,3 @@
             endif;
         endif; ?>
         <?php endif; ?>
-
-

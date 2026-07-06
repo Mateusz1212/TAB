@@ -6,7 +6,7 @@
             <?php $i = 0; foreach ($subs as $s): $p = explode(';', $s, 4); $cls = ($i++ % 2 == 0) ? 'n0' : 'n1'; ?>
             <tr class="<?=$cls?>">
                 <td><?=$p[0]?></td><td><?=htmlspecialchars($p[1])?></td><td><?=htmlspecialchars($p[2])?></td>
-                <td><a href="login.php?view=subject&sid=<?=$p[0]?>&view_action=manage_exercise_att">Wybierz ćwiczenie</a></td>
+                <td><a href="panel.php?view=subject&sid=<?=$p[0]?>&view_action=manage_exercise_att">Wybierz ćwiczenie</a></td>
             </tr>
             <?php endforeach; ?>
         </table>
@@ -22,7 +22,7 @@
                     foreach ($viewData['all_exercises'] as $c) { $cp = explode(';', $c, 4); $ex_names[intval($cp[0])] = htmlspecialchars($cp[1]); $ex_descriptions[intval($cp[0])] = $cp[2]; }
                 }
         ?>
-        <A HREF="login.php?view_action=manage_exercise_att"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
+        <A HREF="panel.php?view_action=manage_exercise_att"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
         <h3>Ćwiczenia dla: <?=htmlspecialchars($subLine[1])?></h3>
         <table CELLPADDING="2" CELLSPACING="0" BORDER="1" class="border" cellpadding="4">
             <tr><th>Nazwa ćwiczenia</th><th>Akcje</th></tr>
@@ -35,7 +35,7 @@
             ?>
             <tr class="<?=$cls?>">
                 <td><?=htmlspecialchars($cname)?> <small style="font-size:0.85em; color:#555;">(<?=htmlspecialchars($shortDesc)?>)</small></td>
-                <td><a href="login.php?view=subject_exercise&sid=<?=$sid?>&eid=<?=$eid?>&view_action=manage_exercise_att">Zarządzaj</a></td>
+                <td><a href="panel.php?view=subject_exercise&sid=<?=$sid?>&eid=<?=$eid?>&view_action=manage_exercise_att">Zarządzaj</a></td>
             </tr>
             <?php endforeach; ?>
         </table>
@@ -52,10 +52,10 @@
                 $current_att = $viewData['current_att'] ?? [];
                 $exemptions_map = $viewData['exemptions_map'] ?? [];
         ?>
-        <A HREF="login.php?view=subject&sid=<?=$sid?>&view_action=manage_exercise_att"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
+        <A HREF="panel.php?view=subject&sid=<?=$sid?>&view_action=manage_exercise_att"><IMG SRC="left.png" WIDTH="16" HEIGHT="9" BORDER="0" ALT="wstecz"></A>
         <h3>Obecność: <?=htmlspecialchars($exLine[1])?> (Przedmiot: <?=htmlspecialchars($subLine[1])?>)</h3>
         <h4>Masowe wpisywanie</h4>
-        <form method="post" action="login.php?action=add_exercise_att_batch">
+        <form method="post" action="panel.php?action=add_exercise_att_batch">
             <input type="hidden" name="subject_id" value="<?=$sid?>">
             <input type="hidden" name="exercise_id" value="<?=$eid?>">
             <table CELLPADDING="2" CELLSPACING="0" BORDER="1" class="border" cellpadding="4">
@@ -104,7 +104,7 @@
                 <td><b><?=htmlspecialchars($attData['status'])?></b></td>
                 <td><?=htmlspecialchars($attData['date'])?></td>
                 <td>
-                    <form style="display:inline; margin:0;" method="post" action="login.php?action=edit_exercise_att">
+                    <form style="display:inline; margin:0;" method="post" action="panel.php?action=edit_exercise_att">
                         <input type="hidden" name="att_id" value="<?=$attData['id']?>">
                         <input type="hidden" name="subject_id" value="<?=$sid?>">
                         <input type="hidden" name="exercise_id" value="<?=$eid?>">
@@ -114,7 +114,7 @@
                         </select>
                         <input type="submit" value="Edytuj">
                     </form>
-                    <a href="login.php?action=delete_exercise_att&aid=<?=$attData['id']?>&sid=<?=$sid?>&eid=<?=$eid?>&view_action=manage_exercise_att" onclick="return confirm('Usunąć wpis?')">[usuń]</a>
+                    <a href="panel.php?action=delete_exercise_att&aid=<?=$attData['id']?>&sid=<?=$sid?>&eid=<?=$eid?>&view_action=manage_exercise_att" onclick="return confirm('Usunąć wpis?')">[usuń]</a>
                 </td>
             </tr>
             <?php endforeach; ?>
@@ -130,7 +130,7 @@
             $sel_sid = $viewData['sel_sid'] ?? 0;
         ?>
         <h3>Egzekwowanie zadań (Terminy)</h3>
-        <form method="get" action="login.php">
+        <form method="get" action="panel.php">
             <input type="hidden" name="view_action" value="enforce_tasks">
             Przedmiot: <select name="sid" onchange="this.form.submit()">
                 <option value="">-- wybierz --</option>
@@ -157,7 +157,7 @@
                 $status_txt = $is_past ? "TERMIN MINĄŁ" : "Termin zbliża się";
             ?>
             <div style="margin:8px 0;">
-                <form method="post" action="login.php?action=apply_penalty&view_action=enforce_tasks&sid=<?=$sel_sid?>">
+                <form method="post" action="panel.php?action=apply_penalty&view_action=enforce_tasks&sid=<?=$sel_sid?>">
                     <input type="hidden" name="subject_id" value="<?=$sel_sid?>">
                     <input type="hidden" name="exercise_id" value="<?=$eid_et?>">
                     <table CELLPADDING="2" CELLSPACING="0" BORDER="1" class="border" cellpadding="4" width="100%">
@@ -181,5 +181,3 @@
         <?php endif; ?>
         <?php endif; ?>
         <?php endif; ?>
-
-
