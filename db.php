@@ -1,11 +1,8 @@
 <?php
-// ============================================================
-// KONFIGURACJA POŁĄCZENIA Z BAZĄ DANYCH MySQL
-// ============================================================
 define('DB_HOST', 'localhost');
-define('DB_NAME', 'db.zmitac');        // <-- zmień na nazwę swojej bazy
-define('DB_USER', 'root');           // <-- zmień na swojego użytkownika
-define('DB_PASS', '');               // <-- zmień na swoje hasło
+define('DB_NAME', 'db.zmitac');
+define('DB_USER', 'root');
+define('DB_PASS', '');
 define('DB_CHARSET', 'utf8mb4');
 
 /**
