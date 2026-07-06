@@ -1846,7 +1846,7 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
             foreach ($reportHistory as &$rh) {
                 usort($rh, function($a, $b) { return strtotime($b['date']) - strtotime($a['date']); });
             }
-            // Mapa zaliczonych sprawozdań: uwzględnia 'zal' kiedykolwiek w historii
+            // Mapa zaliczonych sprawozdań
             $reportPassedMap = [];
             foreach(read_lines($reportsFile) as $r) {
                 $p = explode(';', $r);
@@ -1899,7 +1899,7 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
                     $grades_for_ex = $student_grades_map[$stId][$eid] ?? [];
                     $is_exempt = in_array('zw', $grades_for_ex);
 
-                    // Oblicz średnią ważoną (zawsze, niezależnie od zwolnienia)
+                    // Oblicz średnią ważoną
                     $vals = [];
                     foreach ($grades_for_ex as $v_str) {
                         $v_clean = str_replace(',', '.', $v_str);
@@ -1915,12 +1915,10 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
                         $weight_total += $ex_weight;
                     }
 
-                    // Zwolnieni nie wpływają na is_complete
                     if ($is_exempt) {
                         continue;
                     }
 
-                    // Oblicz wartości faktyczne
                     $has_positive_grade = false;
                     foreach ($grades_for_ex as $v_str) {
                         $v_clean = str_replace(',', '.', $v_str);
@@ -1942,7 +1940,7 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
 
                     $exercise_passed = true;
                     if (!$has_any_criterion) {
-                        // Brak kryteriów – zaliczone gdy ocena ≥ 2.51
+                        // Brak kryteriów – zaliczone gdy ocena >= 2.51
                         if (!$has_positive_grade) $exercise_passed = false;
                     } else {
                         if ($req_grade      && !$has_positive_grade) $exercise_passed = false;
@@ -1989,7 +1987,6 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
             $p = explode(';', $appLine);
             if (count($p) >= 10 && intval($p[2]) === intval($me['id'])) {
                 $status = $p[7];
-                // Filtrowanie po zakładkach
                 if ($viewData['tab'] === 'pending' && $status === 'pending') {
                     $myApps[] = $p;
                 } elseif ($viewData['tab'] === 'accepted' && $status === 'accepted') {
@@ -2056,8 +2053,6 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
                 }
             }
 
-            // Historia statusów – czytamy z reportHistoryFile
-            // Format linii: lineIndex;report_id;date;status;comment
             $history_all = [];
             $raw_history = read_lines($reportHistoryFile);
             foreach ($raw_history as $idx => $h_line) {
@@ -2066,14 +2061,13 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
                 $rid = intval($p[1]);
                 if (!isset($reports_for_subject[$rid])) continue;
                 $history_all[$rid][] = [
-    'hid'     => intval($p[0]),  // ← poprawnie: ID z pierwszej kolumny
+    'hid'     => intval($p[0]),
     'date'    => $p[2],
     'status'  => trim($p[3]),
     'comment' => isset($p[4]) ? trim($p[4]) : ''
 ];
             }
 
-            // Budujemy mapę [stId][exId] => info
             $reports_map = [];
             foreach ($reports_for_subject as $rid => $info) {
                 $reports_map[$info['stId']][$info['exId']] = [
@@ -2095,9 +2089,7 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
     }
 }
 
-    // ============================================================
-    // 25. SZUKAJ STUDENTA
-    // ============================================================
+    /* 25. SZUKAJ STUDENTA */
     if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher' && $view_action === 'szukaj_studenta') {
         $ss_q = trim($_GET['ss_q'] ?? '');
         $ss_preview_stid = isset($_GET['ss_stid']) ? intval($_GET['ss_stid']) : 0;
@@ -2119,8 +2111,8 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
             }
         }
 
-        // Zbierz przedmioty należące do tej samej uczelni (właściciel jest nauczycielem tej uczelni)
-        $ss_subj_of_uczelnia = []; // sid => [id, name, rok, owner_id]
+        // Zbierz przedmioty należące do tej samej uczelni
+        $ss_subj_of_uczelnia = [];
         foreach (read_lines($subjectsFile) as $sl) {
             $sp = explode(';', $sl);
             $s_owner = intval($sp[3] ?? 0);
@@ -2130,10 +2122,8 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
             }
         }
 
-        // Jeśli jest zapytanie szukania – znajdź studentów i ich przedmioty
         if ($ss_q !== '') {
             $ss_results = [];
-            // Wczytaj enroll: student_id => [sid, ...]
             $enroll_by_student = [];
             foreach (read_lines($enrollFile) as $el) {
                 $ep = explode(';', $el);
@@ -2164,9 +2154,7 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
             $viewData['szukaj_wyniki'] = $ss_results;
         }
 
-        // Jeśli jest podgląd ocen studenta dla konkretnego przedmiotu
         if ($ss_preview_stid > 0 && $ss_preview_sid > 0) {
-            // Znajdź dane studenta
             $pv_student = null;
             foreach ($students as $stud) {
                 if (intval($stud[4]) === $ss_preview_stid) { $pv_student = $stud; break; }
@@ -2193,7 +2181,7 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
                 }
             }
 
-            // Ćwiczenia przypisane do przedmiotu – kolejność z subjectExerciseFile
+            // Ćwiczenia przypisane do przedmiotu
             $pv_ex_defs_map = [];
             foreach (read_lines($exercisesFile) as $el) {
                 $ep = explode(';', $el, 5);
@@ -2250,7 +2238,6 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
                 if (isset($pv_report_history[$rid])) $pv_report_history[$rid]['is_passed'] = true;
             }
 
-            // Mapa ExerciseID => latestStatus
             $pv_lsbe = [];
             foreach ($pv_student_reports as $cwid_r => $reps) {
                 $latest_r = end($reps);
@@ -2297,7 +2284,7 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
         }
     }
 
-// ====== WYDRUK SPRAWOZDAŃ – ładowanie danych widoku ======
+/* WYDRUK SPRAWOZDAŃ */
 if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher' && $view_action === 'wydruk_sprawozdan') {
     $wsp_sid = isset($_GET['sid']) ? intval($_GET['sid']) : 0;
 
@@ -2323,14 +2310,14 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher' && $view
             }
         }
 
-        // Lista studentów zapisanych na przedmiot (id => "Imię Nazwisko (album)")
+        // Lista studentów zapisanych na przedmiot
         $wsp_enrolled_ids = [];
         foreach (read_lines($enrollFile) as $l) {
             $p = explode(';', $l);
             if (intval($p[1]) === $wsp_sid) $wsp_enrolled_ids[] = intval($p[0]);
         }
-        $wsp_enrolled_students = []; // stid => "Imię Nazwisko"
-        $wsp_student_data = [];      // stid => ['name'=>..., 'album'=>...]
+        $wsp_enrolled_students = [];
+        $wsp_student_data = [];
         foreach ($students as $stud) {
             $stid = intval($stud[4]);
             if (in_array($stid, $wsp_enrolled_ids)) {
@@ -2341,8 +2328,8 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher' && $view
         }
 
         // Historia statusów sprawozdań – najnowszy wpis per report_id
-        $wsp_history_latest = []; // rid => ['status', 'comment', 'date']
-        $wsp_history_has_zal = []; // rid => true
+        $wsp_history_latest = [];
+        $wsp_history_has_zal = [];
         foreach (read_lines($reportHistoryFile) as $hl) {
             $hp = explode(';', $hl, 5);
             if (count($hp) < 4) continue;
@@ -2356,10 +2343,8 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher' && $view
             }
         }
 
-        // Sprawozdania przedmiotu – jeden wiersz per sprawozdanie (najnowsze zgłoszenie)
-        // Format reportsFile: id;student_id;subject_id;exercise_id;path;comment;date[;...;teacher_id]
-        // Bierzemy ostatnie (najnowsze) sprawozdanie per (student, ćwiczenie)
-        $wsp_latest_per_pair = []; // "stid-eid" => report row array
+        // Sprawozdania przedmiotu
+        $wsp_latest_per_pair = [];
         foreach (read_lines($reportsFile) as $rl) {
             $rp = explode(';', $rl);
             if (count($rp) < 7) continue;
@@ -2368,13 +2353,11 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher' && $view
             $eid_r  = intval($rp[3]);
             $key = "{$stid_r}-{$eid_r}";
             $date_r = $rp[6] ?? '';
-            // Zachowaj najpóźniejsze
             if (!isset($wsp_latest_per_pair[$key]) || $date_r > $wsp_latest_per_pair[$key][6]) {
                 $wsp_latest_per_pair[$key] = $rp;
             }
         }
 
-        // Zbuduj płaską listę wierszy do wyświetlenia
         $wsp_all_rows = [];
         foreach ($wsp_latest_per_pair as $key => $rp) {
             $rid  = intval($rp[0]);
@@ -2441,7 +2424,7 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher' && $view
                 if (in_array(intval($p[0]), $assigned_eids_h)) $exercises_h[] = $p;
             }
 
-            // Sekcje – format: section_id;subject_id;name
+            // Sekcje
             $sections_h = [];
             foreach (read_lines($definedSectionsFile) as $l) {
                 $p = explode(';', $l);
@@ -2450,7 +2433,7 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher' && $view
                 }
             }
 
-            // Załaduj zapisany harmonogram – format: id;subject_id;section_id;exercise_id;datetime
+            // Załaduj zapisany harmonogram
             $schedule_h = [];
             ensure_file($harmonogramFile);
             foreach (read_lines($harmonogramFile) as $l) {
