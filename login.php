@@ -8,9 +8,8 @@ session_start();
 $action = $_REQUEST['action'] ?? '';
 if ($action === 'toggle_view') {
     $_SESSION['view_mode'] = ($_SESSION['view_mode'] ?? 'modern') === 'modern' ? 'compact' : 'modern';
-    // Przekierowanie zwrotne, aby zachować parametry GET (np. sid, view_action)
     $params = $_GET;
-    unset($params['action']); // usuwamy action=toggle_view z URL
+    unset($params['action']);
     $query = http_build_query($params);
     header("Location: login.php" . ($query ? '?' . $query : ''));
     exit;
@@ -54,28 +53,23 @@ function get_subject_permissions($sid, $me_id, $subject_owner_id) {
                 ];
             }
 
-            // Obsługa nowego modelu (manage_exercises_scope) oraz starego (manage_exercises + exemptions)
             if (isset($perms['manage_exercises_scope'])) {
-                $ex_scope = $perms['manage_exercises_scope']; // 'none'|'own'|'all'
+                $ex_scope = $perms['manage_exercises_scope'];
             } elseif (!empty($perms['manage_exercises'])) {
-                // Migracja ze starego modelu: był manage_exercises=1 → scope='all'
                 $ex_scope = 'all';
             } else {
                 $ex_scope = 'none';
             }
 
-            // Obsługa nowego modelu oceniania (grading_own + grading_all) oraz starego (grading_scope)
             if (isset($perms['grading_own']) || isset($perms['grading_all'])) {
                 $grading_own = !empty($perms['grading_own']);
                 $grading_all = !empty($perms['grading_all']);
             } else {
-                // Migracja: stary model grading_scope radio
                 $old_scope   = $perms['grading_scope'] ?? 'own';
                 $grading_own = ($old_scope === 'own' || $old_scope === 'all');
                 $grading_all = ($old_scope === 'all');
             }
 
-            // grading_scope do kompatybilności z resztą kodu
             if ($grading_all) {
                 $grading_scope = 'all';
             } elseif ($grading_own) {
@@ -91,7 +85,6 @@ function get_subject_permissions($sid, $me_id, $subject_owner_id) {
                 'grading_scope'          => $grading_scope,
                 'grading_own'            => $grading_own,
                 'grading_all'            => $grading_all,
-                // zwolnienia wynikają z uprawnień do zarządzania ćwiczeniami
                 'exemptions'             => ($ex_scope !== 'none'),
                 'final_grades'           => !empty($perms['final_grades']),
                 'announcements'          => !empty($perms['announcements']),
@@ -255,7 +248,6 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
             }
         }
 
-        // Filtruj tablicę $students
         $students_filtered = [];
         foreach ($students as $stud) {
             if (isset($student_ids_uczelnia_as[intval($stud[4])])) {
@@ -317,7 +309,6 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
                         $eid = intval($p[1]);
                         if (!isset($exercises_map[$eid])) continue;
                         $ex = $exercises_map[$eid];
-                        // Jeśli zakres to 'own', pokazuj tylko ćwiczenia przypisane do zalogowanego prowadzącego
                         if ($ex_scope === 'own') {
                             $ex_teacher_id = isset($ex[4]) ? intval($ex[4]) : 0;
                             if ($ex_teacher_id !== intval($me['id'])) continue;
@@ -339,9 +330,8 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
     }
 
     if ($view_action === 'manage_announcements') {
-        // Zbuduj zbiór przedmiotów, do których prowadzący ma uprawnienie do ogłoszeń
         $allowed_subs_for_announcements = [];
-        $allowed_sids_for_announcements = []; // tylko ID przedmiotów
+        $allowed_sids_for_announcements = [];
         foreach ($subs as $s) {
             $p = explode(';', $s);
             $sid = intval($p[0]);
@@ -355,7 +345,6 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
         }
         $viewData['subjects_list'] = $allowed_subs_for_announcements;
 
-        // Filtruj ogłoszenia: pokaż tylko te, których target to 'global' LUB należą do dozwolonego przedmiotu
         $all_announcements = read_lines($announcementsFile);
         $filtered_announcements = [];
         $has_any_ann_perm = count($allowed_sids_for_announcements) > 0;
@@ -377,9 +366,9 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
         }
         $viewData['announcements'] = $filtered_announcements;
 
-        // Ogłoszenia ukryte (przeczytane) – z bazy danych MySQL
+        // Ogłoszenia ukryte (przeczytane)
         global $hiddenAnnouncementsFile;
-        $ann_readers = []; // aid => [student_id, ...]
+        $ann_readers = [];
         foreach (read_lines($hiddenAnnouncementsFile) as $hl) {
             $hp = explode(';', $hl);
             if (count($hp) >= 2) {
@@ -390,7 +379,6 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
         }
         $viewData['ann_readers'] = $ann_readers;
 
-        // Zbuduj mapę id_studenta => imię nazwisko
         $student_name_map = [];
         foreach (read_lines($usersFile) as $ul) {
             $up = explode(';', $ul);
@@ -400,7 +388,6 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
         }
         $viewData['student_name_map'] = $student_name_map;
 
-        // Jeśli żądanie szczegółów "kto przeczytał" konkretne ogłoszenie
         $ann_readers_detail_aid = isset($_GET['ann_readers']) ? intval($_GET['ann_readers']) : 0;
         if ($ann_readers_detail_aid > 0) {
             $readers_ids = $ann_readers[$ann_readers_detail_aid] ?? [];
@@ -442,7 +429,6 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
                 }
             }
 
-            // Wczytaj kryteria zaliczenia (3 kolumny: req_grade, req_report, req_attendance)
             $requirements = [];
             foreach (read_lines($deadlinesFile) as $l) {
                 $p = explode(';', $l);
@@ -500,7 +486,7 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
             }
             unset($entries);
 
-            // Mapa zaliczonych sprawozdań – uwzględnia 'zal' kiedykolwiek w historii
+            // Mapa zaliczonych sprawozdań
             $reports_status = [];
             foreach (read_lines($reportsFile) as $r) {
                 $p = explode(';', $r);
@@ -530,13 +516,11 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
                 foreach ($assigned_exercises as $eid) {
                     $student_grades = $grades_data[$st_id][$eid] ?? [];
 
-                    // Zwolnienie
                     if (in_array('zw', $student_grades)) {
                         $exempted_count++;
                         continue;
                     }
 
-                    // Oblicz wartości faktyczne
                     $grade_ok = false;
                     foreach ($student_grades as $g) {
                         $g_clean = str_replace(',', '.', $g);
@@ -549,7 +533,6 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
                     $att_ok     = in_array($att_status, ['obecny', 'spóźniony', 'odrobione']);
                     $report_ok  = ($reports_status[$st_id][$eid] ?? '') === 'zal';
 
-                    // Pobierz kryteria
                     $crit = $requirements[$eid] ?? ['req_grade' => false, 'req_report' => false, 'req_attendance' => false];
                     $req_grade      = $crit['req_grade'];
                     $req_report     = $crit['req_report'];
@@ -607,13 +590,11 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
                 return intval(explode(';',$l)[1]) === $sel_sid;
             });
 
-            // Budujemy mapę definicji ćwiczeń (eid => dane)
             $exercises_defs_map_sg = [];
             foreach (read_lines($exercisesFile) as $c) {
                 $cp = explode(';', $c, 5);
                 $exercises_defs_map_sg[intval($cp[0])] = $cp;
             }
-            // Zachowujemy kolejność z subjectExerciseFile
             $viewData['subject_exercises'] = [];
             foreach (read_lines($subjectExerciseFile) as $l) {
                 $p = explode(';', $l);
@@ -674,15 +655,12 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
                 }
             }
 
-            // Wczytaj kryteria zaliczenia (3 kolumny: req_grade, req_report, req_attendance)
             $crit_map = [];
             $deadlines_map = [];
             foreach (read_lines($deadlinesFile) as $l) {
                 $p = explode(';', $l);
                 if (count($p) >= 3 && intval($p[0]) === $sel_sid) {
                     $eid = intval($p[1]);
-                    // Terminy: t1 jest w p[5] dla nowego formatu (p[2..4] = kryteria, p[5..8] = terminy)
-                    // Stary format: p[2]=req_report, p[3]=t1; nowy: p[2]=req_grade, p[3]=req_report, p[4]=req_att, p[5]=t1
                     if (count($p) >= 5) {
                         $crit_map[$eid] = [
                             'req_grade'      => (intval($p[2]) === 1),
@@ -781,10 +759,8 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
                 foreach ($enrolled_students as $stId => $stData) {
                     $student_grades = $grades_cache[$stId][$eid] ?? [];
 
-                    // Zwolnieni pomijani
                     if (in_array('zw', $student_grades)) continue;
 
-                    // Oblicz wartości faktyczne
                     $has_positive = false;
                     foreach ($student_grades as $g) {
                         $clean_g = str_replace(',', '.', $g);
