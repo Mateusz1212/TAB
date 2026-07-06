@@ -852,14 +852,11 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
                     return intval(explode(';',$l)[1]) === $sel_sid;
                 });
 
-                // Budujemy mapę definicji ćwiczeń (eid => dane)
                 $exercises_defs_map_ex = [];
                 foreach (read_lines($exercisesFile) as $c) {
                     $cp = explode(';', $c, 5);
                     $exercises_defs_map_ex[intval($cp[0])] = $cp;
                 }
-                // Przy zakresie 'own' — tylko ćwiczenia przypisane do zalogowanego prowadzącego
-                // Zachowujemy kolejność z subjectExerciseFile
                 $viewData['subject_exercises'] = [];
                 foreach (read_lines($subjectExerciseFile) as $l) {
                     $p = explode(';', $l);
@@ -944,11 +941,9 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
                 $viewData['exercise_names'][intval($cp[0])] = $cp[1];
             }
             $allReports = read_lines($reportsFile);
-            // Filtrowanie: Przedmiot musi się zgadzać ORAZ (adresat to zalogowany user LUB brak adresata - kompatybilność wsteczna)
             $me_id_filter = intval($me['id']);
             $subjectReports = array_filter($allReports, function($l) use($sid, $me_id_filter){
                 $p = explode(';', $l);
-                // Indeks 8 to teacher_id (licząc od 0)
                 $target_teacher_id = isset($p[8]) ? intval($p[8]) : 0;
                 
                 // Pokaż jeśli: Zgadza się przedmiot I (adresat to JA lub adresat nieustalony/0)
@@ -1811,7 +1806,6 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
             
             $all_grades = read_lines($gradesFile);
             
-            // Wczytaj kryteria zaliczenia (3 kolumny: req_grade, req_report, req_attendance)
             $requirements = [];
             foreach (read_lines($deadlinesFile) as $l) {
                 $p = explode(';', $l);
@@ -1824,7 +1818,6 @@ if (isset($_SESSION['user']) && $_SESSION['user']['role'] === 'teacher') {
                             'req_attendance' => (intval($p[4]) === 1),
                         ];
                     } else {
-                        // Stary format – tylko req_report w p[2]
                         $requirements[$eid_d] = [
                             'req_grade'      => false,
                             'req_report'     => (intval($p[2]) === 1),
