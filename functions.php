@@ -108,16 +108,8 @@ function init_db_extras(): void {
 
 init_db_extras();
 
-// ============================================================
-//  STUB – zachowuje zgodność z kodem, który sprawdza plik
-// ============================================================
 function ensure_file($file, $initial = ''): void { /* nie potrzebne */ }
 
-// ============================================================
-//  PRYWATNE FUNKCJE RAW – zwracają dane w starym formacie
-//  (tablice stringów rozdzielonych średnikami), żeby cały
-//  stary kod PHP działał bez żadnych zmian.
-// ============================================================
 
 function _raw_users(): array {
     $rows = db()->query(
@@ -760,9 +752,6 @@ function get_uczelnia_name(int $id_uczelni): string {
     return $stmt->fetchColumn() ?: 'Nieznana uczelnia';
 }
 
-// ============================================================
-//  FUNKCJE BEZPIECZEŃSTWA – identyczne sygnatury jak dawniej
-// ============================================================
 function get_subject_owner_id(int $sid) {
     $pdo  = db();
     $stmt = $pdo->prepare("SELECT id_uzytkownika FROM Przedmioty WHERE id_przedmiotu=?");
@@ -875,15 +864,10 @@ function student_enrolled_in_subject(int $st_id, int $sid): bool {
     return ((int)$stmt->fetchColumn()) > 0;
 }
 
-// Helper: zwraca wartość oceny do wyświetlenia (string)
 function ocena_display($numeric_val, $text_val): string {
     if (!empty($text_val)) return $text_val;
     if ($numeric_val !== null) return number_format((float)$numeric_val, 2, '.', '');
     return '';
 }
 
-// ============================================================
-//  IDENTYFIKATOR hidden announcements – ogłoszenia ukryte
-//  (dodany tutaj dla obsługi login.php)
-// ============================================================
 $hiddenAnnouncementsFile = '__DB_ANN_HIDDEN__';
