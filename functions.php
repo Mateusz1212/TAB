@@ -1,17 +1,17 @@
 <?php
-// ============================================================
-//  functions.php – WERSJA MYSQL
-//  Zastępuje całkowicie wersję plikową.
-//  Wszystkie odczyty/zapisy trafiają do bazy MySQL.
-// ============================================================
+/**
+ *  functions.php – WERSJA MYSQL
+ *  Zastępuje całkowicie wersję plikową.
+ *  Wszystkie odczyty/zapisy trafiają do bazy MySQL.
+ */
 require_once __DIR__ . '/db.php';
 
-// ============================================================
-//  IDENTYFIKATORY „PLIKÓW" – teraz to tylko stałe symboliczne
-//  używane przez read_lines() i append_line() do routowania
-//  do odpowiedniej tabeli.  Login.php i compact_view.php
-//  nadal deklarują global $usersFile itp. i to działa bez zmian.
-// ============================================================
+/**
+ *  IDENTYFIKATORY „PLIKÓW" – teraz to tylko stałe symboliczne
+ *  używane przez read_lines() i append_line() do routowania
+ *  do odpowiedniej tabeli.  Login.php i compact_view.php
+ *  nadal deklarują global $usersFile itp. i to działa bez zmian.
+ */
 $dataDir              = __DIR__ . '/';
 $usersFile            = '__DB_USERS__';
 $subjectsFile         = '__DB_SUBJECTS__';
@@ -34,10 +34,10 @@ $uczelnieFile         = '__DB_UCZELNIE__';
 $applicationsFile     = '__DB_APPLICATIONS__';
 $harmonogramFile      = '__DB_HARMONOGRAM__';
 
-// ============================================================
-//  INICJALIZACJA BAZY – dodatkowe kolumny i tabele
-//  Uruchamiane raz przy każdym requeście (szybkie dzięki IF NOT EXISTS).
-// ============================================================
+/**
+ *  INICJALIZACJA BAZY – dodatkowe kolumny i tabele
+ *  Uruchamiane raz przy każdym requeście (szybkie dzięki IF NOT EXISTS).
+ */
 function init_db_extras(): void {
     $pdo = db();
     // Wyciszamy błędy ALTER – kolumna może już istnieć
