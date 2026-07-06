@@ -18,12 +18,14 @@ function redirect_with_context(string $fallback = 'login.php', string $msg = '',
     exit;
 }
 
+// wylogowanie
 if ($action === 'logout') {
     session_destroy();
     header('Location: login.php');
     exit;
 }
 
+// nowy przedmiot
 if ($action === 'add_subject' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $name    = sanitizeString(trim($_POST['name'] ?? ''));
     $rok     = sanitizeString(trim($_POST['rok']  ?? ''));
@@ -39,6 +41,7 @@ if ($action === 'add_subject' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=add_subject', 'Dodano przedmiot.');
 }
 
+// edycja przedmiotu
 if ($action === 'edit_subject' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid     = (int)($_POST['subject_id'] ?? 0);
     $name    = sanitizeString(trim($_POST['name'] ?? ''));
@@ -54,6 +57,7 @@ if ($action === 'edit_subject' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=add_subject', 'Zaktualizowano przedmiot.');
 }
 
+// archiwizacja przedmiotu
 if ($action === 'archive_subject') {
     $sid = (int)($_GET['sid'] ?? 0);
     if ($sid && is_subject_owner($sid, (int)$me['id'])) {
@@ -62,6 +66,7 @@ if ($action === 'archive_subject') {
     redirect_with_context('login.php?view_action=add_subject', 'Przedmiot zarchiwizowany.');
 }
 
+// przywrócenie z archiwum
 if ($action === 'unarchive_subject') {
     $sid = (int)($_GET['sid'] ?? 0);
     if ($sid && is_subject_owner($sid, (int)$me['id'])) {
@@ -70,6 +75,7 @@ if ($action === 'unarchive_subject') {
     redirect_with_context('login.php?view_action=add_subject', 'Przedmiot przywrócony.');
 }
 
+// usunięcie przedmiotu i wszystko co powiązane kaskadowo
 if ($action === 'delete_subject') {
     $sid = (int)($_GET['sid'] ?? 0);
     if ($sid && is_subject_owner($sid, (int)$me['id'])) {
@@ -99,6 +105,7 @@ if ($action === 'delete_subject') {
     redirect_with_context('login.php?view_action=add_subject', 'Przedmiot usunięty.');
 }
 
+// nowy rocznik - stary do archiwum, kopiujemy ćwiczenia
 if ($action === 'rollover_subject' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid = (int)($_POST['sid'] ?? 0);
     if (!$sid || !is_subject_owner($sid, (int)$me['id'])) {
@@ -130,6 +137,7 @@ if ($action === 'rollover_subject' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=add_subject', 'Nowy rocznik przedmiotu utworzony.');
 }
 
+// nowy student
 if ($action === 'add_student' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $imie     = sanitizeString(trim($_POST['imie']      ?? ''));
     $nazwisko = sanitizeString(trim($_POST['nazwisko']  ?? ''));
@@ -152,6 +160,7 @@ if ($action === 'add_student' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=add_student', 'Dodano studenta.');
 }
 
+// edycja studenta, haslo tylko jak podane
 if ($action === 'edit_student' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $target_id = (int)($_POST['student_id'] ?? 0);
     $imie      = sanitizeString(trim($_POST['imie']      ?? ''));
@@ -178,6 +187,7 @@ if ($action === 'edit_student' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=add_student', 'Zaktualizowano dane studenta.');
 }
 
+// usuń studenta i jego zapisy
 if ($action === 'delete_student') {
     $target_id = (int)($_GET['student_id'] ?? 0);
     if ($target_id && student_belongs_to_uczelnia($target_id, $me['id_uczelni'] ?? '')) {
@@ -188,6 +198,7 @@ if ($action === 'delete_student') {
     redirect_with_context('login.php?view_action=add_student', 'Usunięto studenta.');
 }
 
+// zapis studenta na przedmiot
 if ($action === 'enroll' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid        = (int)($_POST['subject_id'] ?? 0);
     $student_id = (int)($_POST['student_id'] ?? 0);
@@ -202,6 +213,7 @@ if ($action === 'enroll' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php', 'Zapisano studenta na przedmiot.');
 }
 
+// wypis, czyszczenie ocen/obecności
 if ($action === 'unenroll') {
     $sid        = (int)($_GET['sid']        ?? 0);
     $student_id = (int)($_GET['student_id'] ?? 0);
@@ -219,6 +231,7 @@ if ($action === 'unenroll') {
     redirect_with_context('login.php', 'Wypisano studenta z przedmiotu.');
 }
 
+// nowe ćwiczenie
 if ($action === 'add_exercise' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid  = (int)($_POST['subject_id'] ?? 0);
     $name = sanitizeString(trim($_POST['name'] ?? ''));
@@ -238,6 +251,7 @@ if ($action === 'add_exercise' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=manage_exercises&view=list&sid=' . $sid, 'Dodano ćwiczenie.');
 }
 
+// edycja ćwiczenia
 if ($action === 'edit_exercise' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $eid  = (int)($_POST['exercise_id'] ?? 0);
     $sid  = (int)($_POST['subject_id']  ?? 0);
@@ -253,6 +267,7 @@ if ($action === 'edit_exercise' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=manage_exercises&view=list&sid=' . $sid, 'Zaktualizowano ćwiczenie.');
 }
 
+// usunięcie ćwiczenia i powiązanych z nim rzeczy
 if ($action === 'delete_exercise') {
     $eid = (int)($_GET['eid'] ?? 0);
     $sid = (int)($_GET['sid'] ?? 0);
@@ -271,6 +286,7 @@ if ($action === 'delete_exercise') {
     redirect_with_context('login.php?view_action=manage_exercises&view=list&sid=' . $sid, 'Usunięto ćwiczenie.');
 }
 
+// zmiana kolejności ćwiczeń
 if ($action === 'reorder_exercises' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid   = (int)($_POST['subject_id'] ?? 0);
     $order = $_POST['order'] ?? [];
@@ -283,8 +299,8 @@ if ($action === 'reorder_exercises' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=manage_exercises&view=list&sid=' . $sid, 'Zapisano kolejność ćwiczeń.');
 }
 
+// dodanie oceny
 if ($action === 'add_grade' && $_SERVER['REQUEST_METHOD'] === 'POST') {
-    $sid     = (int)($_POST['subject_id']  ?? 0);
     $st_id   = (int)($_POST['student_id']  ?? 0);
     $eid     = (int)($_POST['exercise_id'] ?? 0);
     $term    = max(1, min(4, (int)($_POST['term'] ?? 1)));
@@ -308,6 +324,7 @@ if ($action === 'add_grade' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php', 'Dodano ocenę.');
 }
 
+// usunięcie oceny
 if ($action === 'delete_grade') {
     $gid = (int)($_GET['gid'] ?? 0);
     if ($gid && grade_belongs_to_accessible_subject($gid, (int)$me['id'])) {
@@ -316,6 +333,7 @@ if ($action === 'delete_grade') {
     redirect_with_context('login.php', 'Usunięto ocenę.');
 }
 
+// edycja oceny
 if ($action === 'edit_grade' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $gid  = (int)($_POST['grade_id'] ?? 0);
     $val  = validateAndFormatGrade(sanitizeString(trim($_POST['grade'] ?? '')));
@@ -332,6 +350,7 @@ if ($action === 'edit_grade' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php', 'Ocena zaktualizowana.');
 }
 
+// oceny uzupełniane masowo - cały formularz na raz
 if ($action === 'batch_grading' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid    = (int)($_POST['subject_id']  ?? 0);
     $eid    = (int)($_POST['exercise_id'] ?? 0);
@@ -361,6 +380,7 @@ if ($action === 'batch_grading' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=batch_grading&sid=' . $sid, 'Wstawiono oceny seryjne.');
 }
 
+// kara 2.00 dla wybranych
 if ($action === 'apply_penalty' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid      = (int)($_POST['subject_id']  ?? 0);
     $eid      = (int)($_POST['exercise_id'] ?? 0);
@@ -383,6 +403,7 @@ if ($action === 'apply_penalty' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=enforce_tasks&sid=' . $sid, 'Wstawiono oceny 2.00.');
 }
 
+// zapis obecności, stare wpisy są nadpisywane
 if ($action === 'save_exercise_att' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid  = (int)($_POST['subject_id']  ?? 0);
     $eid  = (int)($_POST['exercise_id'] ?? 0);
@@ -410,6 +431,7 @@ if ($action === 'save_exercise_att' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=manage_exercise_att&sid=' . $sid, 'Zapisano obecności.');
 }
 
+// usunięcie wpisu obecności
 if ($action === 'delete_exercise_att') {
     $aid = (int)($_GET['aid'] ?? 0);
     if ($aid && exercise_att_belongs_to_accessible_subject($aid, (int)$me['id'])) {
@@ -418,6 +440,7 @@ if ($action === 'delete_exercise_att') {
     redirect_with_context('login.php', 'Usunięto wpis obecności.');
 }
 
+// nowe sprawozdanie ewentualnie z plikiem
 if ($action === 'add_report' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid   = (int)($_POST['subject_id']  ?? 0);
     $st_id = (int)($_POST['student_id']  ?? 0);
@@ -451,6 +474,7 @@ if ($action === 'add_report' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=manage_reports&sid=' . $sid, 'Dodano sprawozdanie.');
 }
 
+// decyzja prowadzącego odnośnie sprawozdania
 if ($action === 'review_report' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $rid     = (int)($_POST['report_id'] ?? 0);
     $status  = sanitizeString(trim($_POST['status']  ?? ''));
@@ -467,6 +491,7 @@ if ($action === 'review_report' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=manage_reports', 'Zaktualizowano status sprawozdania.');
 }
 
+// usunięcie sprawozdania z historią
 if ($action === 'delete_report') {
     $rid = (int)($_GET['rid'] ?? 0);
     if ($rid && report_belongs_to_accessible_subject($rid, (int)$me['id'])) {
@@ -476,6 +501,7 @@ if ($action === 'delete_report') {
     redirect_with_context('login.php?view_action=manage_reports', 'Usunięto sprawozdanie.');
 }
 
+// usunięcie wpisu historii
 if ($action === 'delete_report_history') {
     $hid = (int)($_GET['hid'] ?? 0);
     if ($hid && report_history_belongs_to_accessible_subject($hid, (int)$me['id'])) {
@@ -484,6 +510,7 @@ if ($action === 'delete_report_history') {
     redirect_with_context('login.php?view_action=edit_reports', 'Usunięto wpis historii.');
 }
 
+// zapis wymagań/terminów zaliczenia
 if ($action === 'save_deadlines' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid  = (int)($_POST['subject_id'] ?? 0);
     $eids = $_POST['exercises'] ?? [];
@@ -509,6 +536,7 @@ if ($action === 'save_deadlines' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=manage_deadlines&sid=' . $sid, 'Zapisano wymagania zaliczenia.');
 }
 
+// nowa sekcja
 if ($action === 'add_section' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid  = (int)($_POST['subject_id']    ?? 0);
     $name = sanitizeString(trim($_POST['section_name'] ?? ''));
@@ -519,6 +547,7 @@ if ($action === 'add_section' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=manage_sections&sid=' . $sid, 'Dodano sekcję.');
 }
 
+// zmiana nazwy sekcji
 if ($action === 'rename_section' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sec_id   = (int)($_POST['sec_id']     ?? 0);
     $sid      = (int)($_POST['subject_id'] ?? 0);
@@ -529,6 +558,7 @@ if ($action === 'rename_section' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=manage_sections&sid=' . $sid, 'Zmieniono nazwę sekcji.');
 }
 
+// usunięcie sekcji
 if ($action === 'delete_section') {
     $sec_id = (int)($_GET['sec_id'] ?? 0);
     $sid    = (int)($_GET['sid']    ?? 0);
@@ -539,14 +569,14 @@ if ($action === 'delete_section') {
     redirect_with_context('login.php?view_action=manage_sections&sid=' . $sid, 'Usunięto sekcję.');
 }
 
+// przypisania do sekcji na raz, stare wywalane
 if ($action === 'save_sections' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid                = (int)($_POST['subject_id'] ?? 0);
-    $submitted_sections = $_POST['sections'] ?? [];
+    $submitted_sections = $_POST['sections'] ?? [];   // [student_id => section_id]
 
     if (!$sid || !has_subject_access($sid, (int)$me['id'])) {
         redirect_with_context('login.php', '', 'Brak uprawnień.');
     }
-
     $pdo->prepare(
         "DELETE z FROM Zapisy z
          JOIN Sekcje_Studentow ss ON z.id_sekcji=ss.id_sekcji
@@ -563,6 +593,7 @@ if ($action === 'save_sections' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=manage_sections&sid=' . $sid, 'Zapisano przypisania do sekcji.');
 }
 
+// przenosiny między sekcjami
 if ($action === 'move_students_section' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid         = (int)($_POST['subject_id']  ?? 0);
     $from_sec_id = (int)($_POST['from_sec_id'] ?? 0);
@@ -584,6 +615,7 @@ if ($action === 'move_students_section' && $_SERVER['REQUEST_METHOD'] === 'POST'
     redirect_with_context('login.php?view_action=manage_sections&sid=' . $sid, 'Przeniesiono studentów do sekcji.');
 }
 
+// import studentów z tekstu
 if ($action === 'batch_add_students_process' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid      = (int)($_POST['subject_id']  ?? 0);
     $sec_id   = (int)($_POST['section_id']  ?? 0);
@@ -634,6 +666,7 @@ if ($action === 'batch_add_students_process' && $_SERVER['REQUEST_METHOD'] === '
     );
 }
 
+// dostęp dla współprowadzącego + uprawnienia
 if ($action === 'grant_access' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid = (int)($_POST['subject_id']  ?? 0);
     $tid = (int)($_POST['teacher_id']  ?? 0);
@@ -660,6 +693,7 @@ if ($action === 'grant_access' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=manage_access&view=details&sid=' . $sid, 'Przyznano dostęp współprowadzącemu.');
 }
 
+// odebranie dostępu
 if ($action === 'revoke_access') {
     $sid = (int)($_GET['sid'] ?? 0);
     $tid = (int)($_GET['tid'] ?? 0);
@@ -670,6 +704,7 @@ if ($action === 'revoke_access') {
     redirect_with_context('login.php?view_action=manage_access&view=details&sid=' . $sid, 'Odwołano dostęp.');
 }
 
+// nowe ogłoszenie
 if ($action === 'add_announcement' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $title   = sanitizeString(trim($_POST['title']   ?? ''));
     $content = str_replace(["\r","\n"], ' ', sanitizeString(trim($_POST['content'] ?? '')));
@@ -691,6 +726,7 @@ if ($action === 'add_announcement' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=manage_announcements', 'Dodano ogłoszenie.');
 }
 
+// usunięcie ogłoszenia
 if ($action === 'delete_announcement') {
     $aid = (int)($_GET['aid'] ?? 0);
     if ($aid && announcement_belongs_to_teacher($aid, (int)$me['id'])) {
@@ -699,6 +735,7 @@ if ($action === 'delete_announcement') {
     redirect_with_context('login.php?view_action=manage_announcements', 'Usunięto ogłoszenie.');
 }
 
+// ocena końcowa, stara jest usuwana przed wpisaniem nowej
 if ($action === 'save_final_grade' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid    = (int)($_POST['subject_id']  ?? 0);
     $st_id  = (int)($_POST['student_id']  ?? 0);
@@ -722,6 +759,7 @@ if ($action === 'save_final_grade' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=final_grades_view&sid=' . $sid, 'Zapisano ocenę końcową.');
 }
 
+// usunięcie oceny końcowej
 if ($action === 'delete_final_grade') {
     $fgid = (int)($_GET['fgid'] ?? 0);
     if ($fgid) {
@@ -735,6 +773,7 @@ if ($action === 'delete_final_grade') {
     redirect_with_context('login.php?view_action=final_grades_view', 'Usunięto ocenę końcową.');
 }
 
+// zwolnienie studenta ze ćwiczenia
 if ($action === 'add_exemption' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid   = (int)($_POST['subject_id']  ?? 0);
     $st_id = (int)($_POST['student_id']  ?? 0);
@@ -760,6 +799,7 @@ if ($action === 'add_exemption' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=manage_exemptions&sid=' . $sid, 'Dodano zwolnienie.');
 }
 
+// usunięcie zwolnienia
 if ($action === 'remove_exemption') {
     $gid = (int)($_GET['gid'] ?? 0);
     if ($gid && grade_belongs_to_accessible_subject($gid, (int)$me['id'])) {
@@ -768,6 +808,7 @@ if ($action === 'remove_exemption') {
     redirect_with_context('login.php?view_action=manage_exemptions', 'Usunięto zwolnienie.');
 }
 
+// zmiana hasła
 if ($action === 'change_password' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $old = sanitizeString(trim($_POST['old_password'] ?? ''));
     $new = sanitizeString(trim($_POST['new_password'] ?? ''));
@@ -783,6 +824,7 @@ if ($action === 'change_password' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=change_password_view', 'Hasło zostało zmienione.');
 }
 
+// nowy nauczyciel
 if ($action === 'add_teacher' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $imie     = sanitizeString(trim($_POST['imie']      ?? ''));
     $nazwisko = sanitizeString(trim($_POST['nazwisko']  ?? ''));
@@ -805,6 +847,7 @@ if ($action === 'add_teacher' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=add_teacher_view', 'Dodano prowadzącego.');
 }
 
+// edycja nauczyciela
 if ($action === 'edit_teacher' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $tid      = (int)($_POST['teacher_id'] ?? 0);
     $imie     = sanitizeString(trim($_POST['imie']     ?? ''));
@@ -826,6 +869,7 @@ if ($action === 'edit_teacher' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=add_teacher_view', 'Zaktualizowano dane prowadzącego.');
 }
 
+// nowe podanie
 if ($action === 'add_application' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid      = (int)($_POST['subject_id']  ?? 0);
     $st_id    = (int)($_POST['student_id']  ?? 0);
@@ -845,6 +889,7 @@ if ($action === 'add_application' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=manage_applications&sid=' . $sid, 'Dodano podanie.');
 }
 
+// rozpatrzenie podania
 if ($action === 'resolve_application' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $app_id = (int)($_POST['application_id'] ?? 0);
     $status = sanitizeString(trim($_POST['status'] ?? ''));
@@ -854,6 +899,7 @@ if ($action === 'resolve_application' && $_SERVER['REQUEST_METHOD'] === 'POST') 
     redirect_with_context('login.php?view_action=manage_applications', 'Podanie zaktualizowane.');
 }
 
+// usunięcie podania
 if ($action === 'delete_application') {
     $app_id = (int)($_GET['app_id'] ?? 0);
     if ($app_id && _table_exists('Podania')) {
@@ -862,6 +908,7 @@ if ($action === 'delete_application') {
     redirect_with_context('login.php?view_action=manage_applications', 'Usunięto podanie.');
 }
 
+// zapis harmonogramu
 if ($action === 'save_harmonogram' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid     = (int)($_POST['subject_id']  ?? 0);
     $sec_id  = (int)($_POST['section_id']  ?? 0);
@@ -879,6 +926,7 @@ if ($action === 'save_harmonogram' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=harmonogram&sid=' . $sid, 'Zapisano harmonogram.');
 }
 
+// usunięcie harmonogramu
 if ($action === 'delete_harmonogram') {
     $hid = (int)($_GET['hid'] ?? 0);
     if ($hid && _table_exists('Harmonogramy')) {
@@ -887,6 +935,7 @@ if ($action === 'delete_harmonogram') {
     redirect_with_context('login.php?view_action=harmonogram', 'Usunięto wpis harmonogramu.');
 }
 
+// nowa uczelnia
 if ($action === 'add_uczelnia' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = sanitizeString(trim($_POST['name'] ?? ''));
     if ($name) {
@@ -894,4 +943,3 @@ if ($action === 'add_uczelnia' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     }
     redirect_with_context('login.php', 'Dodano uczelnię.');
 }
-
