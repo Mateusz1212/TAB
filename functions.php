@@ -173,7 +173,6 @@ function _raw_grades(): array {
     $result = [];
     foreach ($rows as $r) {
         $val = (!empty($r['val'])) ? $r['val'] : '0.00';
-        // format: id;stid;subid;typ;val;note;date;eid;term;tid
         $result[] = "{$r['id_oceny']};{$r['id_studenta']};{$r['id_przedmiotu']};ocena;{$val};"
                   . "{$r['komentarz']};{$r['data_wstawienia']};{$r['id_cwiczenia']};"
                   . "{$r['terminy']};{$r['id_nauczyciela']}";
@@ -193,7 +192,6 @@ function _raw_exercises(): array {
 }
 
 function _raw_subject_exercises(): array {
-    // format: subject_id;exercise_id (w kolejności kolejnosc)
     $rows = db()->query(
         "SELECT id_przedmiotu, id_cwiczenia FROM Cwiczenia ORDER BY id_przedmiotu, kolejnosc, id_cwiczenia"
     )->fetchAll();
@@ -230,7 +228,6 @@ function _raw_general_att(): array {
 }
 
 function _raw_reports(): array {
-    // format: id;stid;subid;eid;path;filename;date;note;tid
     $rows = db()->query(
         "SELECT s.id_sprawozdania, s.id_studenta, s.id_przedmiotu, s.id_cwiczenia,
                 COALESCE(h.plik_sciezka,'') AS path,
@@ -250,7 +247,6 @@ function _raw_reports(): array {
 }
 
 function _raw_report_history(): array {
-    // format: id;report_id;date;status;comment
     $rows = db()->query(
         "SELECT id_historii, id_sprawozdania, COALESCE(data,'') AS data,
                 COALESCE(status,'oczekuje') AS status, COALESCE(komentarz,'') AS komentarz
@@ -263,7 +259,6 @@ function _raw_report_history(): array {
 }
 
 function _raw_deadlines(): array {
-    // format: sid;eid;req_grade;req_report;req_att;t1;t2;t3;t4
     $rows = db()->query(
         "SELECT id_cwiczenia, id_przedmiotu, wymagania FROM Cwiczenia WHERE wymagania IS NOT NULL"
     )->fetchAll();
@@ -280,7 +275,6 @@ function _raw_deadlines(): array {
         $t2  = $w['t2'] ?? '';
         $t3  = $w['t3'] ?? '';
         $t4  = $w['t4'] ?? '';
-        // Uwzględniaj tylko jeśli jest jakiekolwiek wymaganie lub termin
         if ($rg || $rr || $ra || $t1 || $t2 || $t3 || $t4) {
             $result[] = "{$sid};{$eid};{$rg};{$rr};{$ra};{$t1};{$t2};{$t3};{$t4}";
         }
@@ -289,7 +283,6 @@ function _raw_deadlines(): array {
 }
 
 function _raw_subject_access(): array {
-    // format: sid;tid;co_teacher;{perms_json}
     $pdo = db();
     $wspol = $pdo->query(
         "SELECT w.id_przedmiotu, w.id_nauczyciela
@@ -324,7 +317,6 @@ function _raw_subject_access(): array {
 }
 
 function _raw_sections(): array {
-    // format: id;stid;sid;sec_id
     $rows = db()->query(
         "SELECT z.id_zapisu, z.id_uzytkownika, ss.id_przedmiotu, z.id_sekcji
          FROM Zapisy z
@@ -338,7 +330,6 @@ function _raw_sections(): array {
 }
 
 function _raw_defined_sections(): array {
-    // format: id;sid;name
     $rows = db()->query(
         "SELECT id_sekcji, id_przedmiotu, nazwa FROM Sekcje_Studentow ORDER BY id_sekcji"
     )->fetchAll();
@@ -346,7 +337,6 @@ function _raw_defined_sections(): array {
 }
 
 function _raw_announcements(): array {
-    // format: id;title;content;date;target;author_id
     $rows = db()->query(
         "SELECT id_ogloszenia, tytul, COALESCE(opis,'') AS opis,
                 COALESCE(data_dodania,'') AS data,
@@ -362,7 +352,6 @@ function _raw_announcements(): array {
 }
 
 function _raw_final_grades(): array {
-    // format: id;stid;sid;val;comment;date;tid
     $rows = db()->query(
         "SELECT id_oceny_koncowej, id_studenta, id_przedmiotu,
                 COALESCE(ocena_tekstowa, ocena, '') AS val,
@@ -384,7 +373,6 @@ function _raw_uczelnie(): array {
 }
 
 function _raw_applications(): array {
-    // format: id;stid;sid;eid;grade_id;reason;date;status
     if (!_table_exists('Podania')) return [];
     try {
         $rows = db()->query(
@@ -407,7 +395,6 @@ function _raw_applications(): array {
 }
 
 function _raw_harmonogram(): array {
-    // format: id;sid;sec_id;eid;datetime
     if (!_table_exists('Harmonogramy')) return [];
     try {
         $rows = db()->query(
@@ -426,7 +413,6 @@ function _raw_harmonogram(): array {
 }
 
 function _raw_logs(): array {
-    // format: date;stid;ip;device (stary format logsFile)
     if (!_table_exists('Historia_Logowania')) return [];
     try {
         $rows = db()->query(
