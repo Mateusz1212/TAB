@@ -1,17 +1,17 @@
 <?php
-// ============================================================
-//  functions.php – WERSJA MYSQL
-//  Zastępuje całkowicie wersję plikową.
-//  Wszystkie odczyty/zapisy trafiają do bazy MySQL.
-// ============================================================
+/**
+ *  functions.php – WERSJA MYSQL
+ *  Zastępuje całkowicie wersję plikową.
+ *  Wszystkie odczyty/zapisy trafiają do bazy MySQL.
+ */
 require_once __DIR__ . '/db.php';
 
-// ============================================================
-//  IDENTYFIKATORY „PLIKÓW" – teraz to tylko stałe symboliczne
-//  używane przez read_lines() i append_line() do routowania
-//  do odpowiedniej tabeli.  Login.php i compact_view.php
-//  nadal deklarują global $usersFile itp. i to działa bez zmian.
-// ============================================================
+/**
+ *  IDENTYFIKATORY „PLIKÓW" – teraz to tylko stałe symboliczne
+ *  używane przez read_lines() i append_line() do routowania
+ *  do odpowiedniej tabeli.  Login.php i compact_view.php
+ *  nadal deklarują global $usersFile itp. i to działa bez zmian.
+ */
 $dataDir              = __DIR__ . '/';
 $usersFile            = '__DB_USERS__';
 $subjectsFile         = '__DB_SUBJECTS__';
@@ -34,10 +34,10 @@ $uczelnieFile         = '__DB_UCZELNIE__';
 $applicationsFile     = '__DB_APPLICATIONS__';
 $harmonogramFile      = '__DB_HARMONOGRAM__';
 
-// ============================================================
-//  INICJALIZACJA BAZY – dodatkowe kolumny i tabele
-//  Uruchamiane raz przy każdym requeście (szybkie dzięki IF NOT EXISTS).
-// ============================================================
+/**
+ *  INICJALIZACJA BAZY – dodatkowe kolumny i tabele
+ *  Uruchamiane raz przy każdym requeście (szybkie dzięki IF NOT EXISTS).
+ */
 function init_db_extras(): void {
     $pdo = db();
     // Wyciszamy błędy ALTER – kolumna może już istnieć
@@ -108,16 +108,8 @@ function init_db_extras(): void {
 
 init_db_extras();
 
-// ============================================================
-//  STUB – zachowuje zgodność z kodem, który sprawdza plik
-// ============================================================
 function ensure_file($file, $initial = ''): void { /* nie potrzebne */ }
 
-// ============================================================
-//  PRYWATNE FUNKCJE RAW – zwracają dane w starym formacie
-//  (tablice stringów rozdzielonych średnikami), żeby cały
-//  stary kod PHP działał bez żadnych zmian.
-// ============================================================
 
 function _raw_users(): array {
     $rows = db()->query(
@@ -173,7 +165,6 @@ function _raw_grades(): array {
     $result = [];
     foreach ($rows as $r) {
         $val = (!empty($r['val'])) ? $r['val'] : '0.00';
-        // format: id;stid;subid;typ;val;note;date;eid;term;tid
         $result[] = "{$r['id_oceny']};{$r['id_studenta']};{$r['id_przedmiotu']};ocena;{$val};"
                   . "{$r['komentarz']};{$r['data_wstawienia']};{$r['id_cwiczenia']};"
                   . "{$r['terminy']};{$r['id_nauczyciela']}";
@@ -193,7 +184,6 @@ function _raw_exercises(): array {
 }
 
 function _raw_subject_exercises(): array {
-    // format: subject_id;exercise_id (w kolejności kolejnosc)
     $rows = db()->query(
         "SELECT id_przedmiotu, id_cwiczenia FROM Cwiczenia ORDER BY id_przedmiotu, kolejnosc, id_cwiczenia"
     )->fetchAll();
@@ -230,7 +220,6 @@ function _raw_general_att(): array {
 }
 
 function _raw_reports(): array {
-    // format: id;stid;subid;eid;path;filename;date;note;tid
     $rows = db()->query(
         "SELECT s.id_sprawozdania, s.id_studenta, s.id_przedmiotu, s.id_cwiczenia,
                 COALESCE(h.plik_sciezka,'') AS path,
@@ -250,7 +239,6 @@ function _raw_reports(): array {
 }
 
 function _raw_report_history(): array {
-    // format: id;report_id;date;status;comment
     $rows = db()->query(
         "SELECT id_historii, id_sprawozdania, COALESCE(data,'') AS data,
                 COALESCE(status,'oczekuje') AS status, COALESCE(komentarz,'') AS komentarz
@@ -263,7 +251,6 @@ function _raw_report_history(): array {
 }
 
 function _raw_deadlines(): array {
-    // format: sid;eid;req_grade;req_report;req_att;t1;t2;t3;t4
     $rows = db()->query(
         "SELECT id_cwiczenia, id_przedmiotu, wymagania FROM Cwiczenia WHERE wymagania IS NOT NULL"
     )->fetchAll();
@@ -280,7 +267,6 @@ function _raw_deadlines(): array {
         $t2  = $w['t2'] ?? '';
         $t3  = $w['t3'] ?? '';
         $t4  = $w['t4'] ?? '';
-        // Uwzględniaj tylko jeśli jest jakiekolwiek wymaganie lub termin
         if ($rg || $rr || $ra || $t1 || $t2 || $t3 || $t4) {
             $result[] = "{$sid};{$eid};{$rg};{$rr};{$ra};{$t1};{$t2};{$t3};{$t4}";
         }
@@ -289,7 +275,6 @@ function _raw_deadlines(): array {
 }
 
 function _raw_subject_access(): array {
-    // format: sid;tid;co_teacher;{perms_json}
     $pdo = db();
     $wspol = $pdo->query(
         "SELECT w.id_przedmiotu, w.id_nauczyciela
@@ -324,7 +309,6 @@ function _raw_subject_access(): array {
 }
 
 function _raw_sections(): array {
-    // format: id;stid;sid;sec_id
     $rows = db()->query(
         "SELECT z.id_zapisu, z.id_uzytkownika, ss.id_przedmiotu, z.id_sekcji
          FROM Zapisy z
@@ -338,7 +322,6 @@ function _raw_sections(): array {
 }
 
 function _raw_defined_sections(): array {
-    // format: id;sid;name
     $rows = db()->query(
         "SELECT id_sekcji, id_przedmiotu, nazwa FROM Sekcje_Studentow ORDER BY id_sekcji"
     )->fetchAll();
@@ -346,7 +329,6 @@ function _raw_defined_sections(): array {
 }
 
 function _raw_announcements(): array {
-    // format: id;title;content;date;target;author_id
     $rows = db()->query(
         "SELECT id_ogloszenia, tytul, COALESCE(opis,'') AS opis,
                 COALESCE(data_dodania,'') AS data,
@@ -362,7 +344,6 @@ function _raw_announcements(): array {
 }
 
 function _raw_final_grades(): array {
-    // format: id;stid;sid;val;comment;date;tid
     $rows = db()->query(
         "SELECT id_oceny_koncowej, id_studenta, id_przedmiotu,
                 COALESCE(ocena_tekstowa, ocena, '') AS val,
@@ -384,7 +365,6 @@ function _raw_uczelnie(): array {
 }
 
 function _raw_applications(): array {
-    // format: id;stid;sid;eid;grade_id;reason;date;status
     if (!_table_exists('Podania')) return [];
     try {
         $rows = db()->query(
@@ -407,7 +387,6 @@ function _raw_applications(): array {
 }
 
 function _raw_harmonogram(): array {
-    // format: id;sid;sec_id;eid;datetime
     if (!_table_exists('Harmonogramy')) return [];
     try {
         $rows = db()->query(
@@ -426,7 +405,6 @@ function _raw_harmonogram(): array {
 }
 
 function _raw_logs(): array {
-    // format: date;stid;ip;device (stary format logsFile)
     if (!_table_exists('Historia_Logowania')) return [];
     try {
         $rows = db()->query(
@@ -451,14 +429,7 @@ function _table_exists(string $table): bool {
     }
 }
 
-// ============================================================
-//  PUBLICZNE FUNKCJE ZGODNOŚCI – zastępują odczyt plików
-// ============================================================
 
-/**
- * Zamiennik read_lines($file) – routuje do odpowiedniej tabeli MySQL.
- * Cały istniejący kod używający read_lines() działa bez zmian.
- */
 function read_lines(string $file): array {
     global $usersFile, $subjectsFile, $enrollFile, $gradesFile, $attFile,
            $exercisesFile, $subjectExerciseFile, $reportsFile, $reportHistoryFile,
@@ -502,9 +473,6 @@ function _raw_hidden_announcements(): array {
     return array_map(fn($r) => "{$r['id_studenta']};{$r['id_ogloszenia']}", $rows);
 }
 
-/**
- * Zamiennik append_line($file, $line) – parsuje stary format i robi INSERT.
- */
 function append_line(string $file, string $line): void {
     global $usersFile, $subjectsFile, $enrollFile, $gradesFile,
            $exercisesFile, $subjectExerciseFile, $reportsFile, $reportHistoryFile,
@@ -517,7 +485,6 @@ function append_line(string $file, string $line): void {
 
     try {
         switch ($file) {
-            // users: role;imie;nazwisko;pass;id;extra;uczelni
             case $usersFile:
                 $role     = $p[0];
                 $imie     = $p[1] ?? '';
@@ -539,7 +506,6 @@ function append_line(string $file, string $line): void {
                 }
                 break;
 
-            // subjects: id;name;rok;owner_id;status;type
             case $subjectsFile:
                 $name     = $p[1] ?? '';
                 $rok      = $p[2] ?? null;
@@ -551,14 +517,12 @@ function append_line(string $file, string $line): void {
                 )->execute([$name, $rok ?: null, $owner, $id_typu, $archived]);
                 break;
 
-            // enroll: stid;subid
             case $enrollFile:
                 $pdo->prepare(
                     "INSERT IGNORE INTO Zapisy_Przedmiotow (id_studenta,id_przedmiotu) VALUES (?,?)"
                 )->execute([(int)$p[0], (int)$p[1]]);
                 break;
 
-            // grades: id;stid;subid;typ;val;note;date;eid;term;tid
             case $gradesFile:
                 $val_raw = trim($p[4] ?? '0.00');
                 $is_txt  = in_array(strtolower($val_raw), ['zw','nb']);
@@ -577,7 +541,6 @@ function append_line(string $file, string $line): void {
                 ]);
                 break;
 
-            // exercise_att: id;stid;sid;eid;status;date
             case $exerciseAttendanceFile:
                 $eid = (int)($p[3] ?? 0) ?: null;
                 $pdo->prepare(
@@ -589,7 +552,6 @@ function append_line(string $file, string $line): void {
                 ]);
                 break;
 
-            // general att: id;stid;sid;0;status;date
             case $attFile:
                 $pdo->prepare(
                     "INSERT INTO Obecnosci (id_studenta,id_przedmiotu,id_cwiczenia,typ,data_i_czas,data_wstawienia)
@@ -600,19 +562,12 @@ function append_line(string $file, string $line): void {
                 ]);
                 break;
 
-            // exercises: id;name;opis;waga;tid  (exercise+subject link)
-            // UWAGA: append_line do exercisesFile NIE dotyczy już nowego systemu;
-            // nowe ćwiczenie tworzone jest wraz z linkiem przedmiotu – patrz actions.php
             case $exercisesFile:
-                // ignoruj – INSERT dzieje się w actions.php bezpośrednio przez PDO
                 break;
 
-            // subject-exercise link: sid;eid
             case $subjectExerciseFile:
-                // ignoruj – zarządzane przez Cwiczenia.id_przedmiotu
                 break;
 
-            // reports: id;stid;sid;eid;path;filename;date;note;tid
             case $reportsFile:
                 $eid = (int)($p[3] ?? 0);
                 $pdo->prepare(
@@ -634,7 +589,6 @@ function append_line(string $file, string $line): void {
                 }
                 break;
 
-            // report_history: id;rid;date;status;comment
             case $reportHistoryFile:
                 $pdo->prepare(
                     "INSERT INTO Historia_Sprawozdan (id_sprawozdania,status,data,komentarz)
@@ -642,7 +596,6 @@ function append_line(string $file, string $line): void {
                 )->execute([(int)$p[1], $p[3]??'oczekuje', $p[2]??date('Y-m-d H:i:s'), $p[4]??'']);
                 break;
 
-            // sections: id;stid;sid;sec_id
             case $sectionsFile:
                 $sec_id = (int)($p[3] ?? 0);
                 if ($sec_id > 0) {
@@ -652,14 +605,12 @@ function append_line(string $file, string $line): void {
                 }
                 break;
 
-            // defined_sections: id;sid;name
             case $definedSectionsFile:
                 $pdo->prepare(
                     "INSERT INTO Sekcje_Studentow (id_przedmiotu,nazwa) VALUES (?,?)"
                 )->execute([(int)$p[1], $p[2]??'']);
                 break;
 
-            // announcements: id;title;content;date;target;author_id
             case $announcementsFile:
                 $target = $p[4] ?? 'global';
                 $sid_ann = is_numeric($target) ? (int)$target : null;
@@ -673,7 +624,6 @@ function append_line(string $file, string $line): void {
                 ]);
                 break;
 
-            // logs: date;stid;ip;device
             case $logsFile:
                 $pdo->prepare(
                     "INSERT INTO Historia_Logowania (id_uzytkownika,data_logowania,adres_ip,informacje_o_urzadzeniu)
@@ -683,7 +633,6 @@ function append_line(string $file, string $line): void {
                 ]);
                 break;
 
-            // final_grades: id;stid;sid;val;comment;date;tid
             case $finalGradesFile:
                 $fval_raw = $p[3] ?? '';
                 $is_txt_f = in_array(strtolower($fval_raw), ['zw','nb']);
@@ -699,12 +648,10 @@ function append_line(string $file, string $line): void {
                 ]);
                 break;
 
-            // uczelnie: id;name
             case $uczelnieFile:
                 $pdo->prepare("INSERT IGNORE INTO Uczelnia (nazwa) VALUES (?)")->execute([$p[1]??'']);
                 break;
 
-            // applications: id;stid;sid;eid;grade_id;reason;date;status
             case $applicationsFile:
                 if (!_table_exists('Podania')) break;
                 $pdo->prepare(
@@ -717,7 +664,6 @@ function append_line(string $file, string $line): void {
                 ]);
                 break;
 
-            // harmonogram: id;sid;sec_id;eid;datetime
             case $harmonogramFile:
                 if (!_table_exists('Harmonogramy')) break;
                 $pdo->prepare(
@@ -726,31 +672,16 @@ function append_line(string $file, string $line): void {
                 break;
         }
     } catch (PDOException $e) {
-        // Loguj błąd bez zatrzymywania aplikacji
         error_log("append_line DB error [{$file}]: " . $e->getMessage());
     }
 }
 
-/**
- * Zamiennik overwrite_file() – nie jest już potrzebny w logice widoku;
- * w actions.php każda operacja korzysta bezpośrednio z PDO.
- * Stub dla zachowania zgodności z ewentualnymi pozostałościami kodu.
- */
-function overwrite_file(string $file, array $lines): void {
-    // Celowo puste – actions.php używa bezpośrednich zapytań SQL
-}
+function overwrite_file(string $file, array $lines): void {}
 
-/**
- * Zamiennik get_new_id() – z MySQL używamy AUTO_INCREMENT.
- * Zostawiamy funkcję jako stub zwracający 0 (INSERT sam nada ID).
- */
 function get_new_id(string $file): int {
     return 0; // nieużywane – MySQL AUTO_INCREMENT
 }
 
-// ============================================================
-//  SANITYZACJA I WALIDACJA
-// ============================================================
 function sanitizeString($inputString): string {
     if ($inputString === null) return '';
     $pattern = '/[^0-9a-zA-Z!@#$%^&*()\[\]{},.\-+_ ĄąŻżÓóŁłĆćŃńŹźŚśĘę=?:\"\'<>\/]/u';
@@ -770,13 +701,8 @@ function validateAndFormatGrade(?string $gradeString): string {
     return '0.00';
 }
 
-// ============================================================
-//  AUTENTYKACJA
-// ============================================================
 function find_user(string $imie, string $nazwisko, ?string $password = null): ?array {
     $pdo = db();
-
-    // Nauczyciel loguje się inicjałami (pole $imie = inicjały)
     $sql    = "SELECT * FROM Uzytkownicy WHERE rola='teacher' AND inicjaly=?";
     $params = [trim($imie)];
     if ($password !== null) { $sql .= " AND haslo=?"; $params[] = $password; }
@@ -796,7 +722,6 @@ function find_user(string $imie, string $nazwisko, ?string $password = null): ?a
         ];
     }
 
-    // Student loguje się imieniem i nazwiskiem
     $full   = trim($imie) . ' ' . trim($nazwisko);
     $sql    = "SELECT * FROM Uzytkownicy WHERE rola='student' AND imie_i_nazwisko=?";
     $params = [$full];
@@ -827,9 +752,6 @@ function get_uczelnia_name(int $id_uczelni): string {
     return $stmt->fetchColumn() ?: 'Nieznana uczelnia';
 }
 
-// ============================================================
-//  FUNKCJE BEZPIECZEŃSTWA – identyczne sygnatury jak dawniej
-// ============================================================
 function get_subject_owner_id(int $sid) {
     $pdo  = db();
     $stmt = $pdo->prepare("SELECT id_uzytkownika FROM Przedmioty WHERE id_przedmiotu=?");
@@ -942,15 +864,10 @@ function student_enrolled_in_subject(int $st_id, int $sid): bool {
     return ((int)$stmt->fetchColumn()) > 0;
 }
 
-// Helper: zwraca wartość oceny do wyświetlenia (string)
 function ocena_display($numeric_val, $text_val): string {
     if (!empty($text_val)) return $text_val;
     if ($numeric_val !== null) return number_format((float)$numeric_val, 2, '.', '');
     return '';
 }
 
-// ============================================================
-//  IDENTYFIKATOR hidden announcements – ogłoszenia ukryte
-//  (dodany tutaj dla obsługi login.php)
-// ============================================================
 $hiddenAnnouncementsFile = '__DB_ANN_HIDDEN__';
