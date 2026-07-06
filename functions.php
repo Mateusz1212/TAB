@@ -112,6 +112,7 @@ function ensure_file($file, $initial = ''): void { /* nie potrzebne */ }
 
 
 function _raw_users(): array {
+    // Pobiera wszystkich użytkowników wraz z ich rolami, danymi identyfikacyjnymi i przypisaną uczelnią.
     $rows = db()->query(
         "SELECT id_uzytkownika, rola, imie_i_nazwisko, haslo,
                 inicjaly, nr_albumu, id_uczelni
@@ -130,6 +131,7 @@ function _raw_users(): array {
 }
 
 function _raw_subjects(): array {
+    // Pobiera przedmioty wraz z prowadzącym, statusem archiwizacji i typem przedmiotu.
     $rows = db()->query(
         "SELECT p.id_przedmiotu, p.nazwa, COALESCE(p.rocznik,'') AS rocznik,
                 p.id_uzytkownika,
@@ -146,6 +148,7 @@ function _raw_subjects(): array {
 }
 
 function _raw_enroll(): array {
+    // Pobiera przypisania studentów do przedmiotów w kolejności zapisów.
     $rows = db()->query(
         "SELECT id_studenta, id_przedmiotu FROM Zapisy_Przedmiotow ORDER BY id"
     )->fetchAll();
@@ -153,6 +156,7 @@ function _raw_enroll(): array {
 }
 
 function _raw_grades(): array {
+    // Pobiera wszystkie oceny wraz z komentarzami, terminami, ćwiczeniami i nauczycielami.
     $rows = db()->query(
         "SELECT o.id_oceny, o.id_studenta, o.id_przedmiotu,
                 COALESCE(o.ocena_tekstowa, CAST(o.ocena AS CHAR)) AS val,
@@ -173,6 +177,7 @@ function _raw_grades(): array {
 }
 
 function _raw_exercises(): array {
+    // Pobiera ćwiczenia wraz z opisem, wagą i przypisanym użytkownikiem.
     $rows = db()->query(
         "SELECT id_cwiczenia, nazwa, COALESCE(opis,'') AS opis, waga, id_uzytkownika
          FROM Cwiczenia ORDER BY kolejnosc, id_cwiczenia"
@@ -184,6 +189,7 @@ function _raw_exercises(): array {
 }
 
 function _raw_subject_exercises(): array {
+    // Pobiera powiązania ćwiczeń z przedmiotami w ustalonej kolejności.
     $rows = db()->query(
         "SELECT id_przedmiotu, id_cwiczenia FROM Cwiczenia ORDER BY id_przedmiotu, kolejnosc, id_cwiczenia"
     )->fetchAll();
@@ -191,6 +197,7 @@ function _raw_subject_exercises(): array {
 }
 
 function _raw_exercise_att(): array {
+    // Pobiera obecności przypisane do konkretnych ćwiczeń wraz z typem i datą.
     $rows = db()->query(
         "SELECT o.id_obecnosci, o.id_studenta, o.id_przedmiotu,
                 COALESCE(o.id_cwiczenia,0) AS id_cwiczenia,
@@ -206,6 +213,7 @@ function _raw_exercise_att(): array {
 }
 
 function _raw_general_att(): array {
+    // Pobiera ogólne obecności niezwiązane z żadnym konkretnym ćwiczeniem.
     $rows = db()->query(
         "SELECT o.id_obecnosci, o.id_studenta, o.id_przedmiotu, o.typ,
                 COALESCE(o.data_i_czas, o.data_wstawienia) AS data
@@ -220,6 +228,7 @@ function _raw_general_att(): array {
 }
 
 function _raw_reports(): array {
+    // Pobiera sprawozdania wraz z najnowszym wpisem ich historii i danymi nauczyciela.
     $rows = db()->query(
         "SELECT s.id_sprawozdania, s.id_studenta, s.id_przedmiotu, s.id_cwiczenia,
                 COALESCE(h.plik_sciezka,'') AS path,
@@ -239,6 +248,7 @@ function _raw_reports(): array {
 }
 
 function _raw_report_history(): array {
+    // Pobiera pełną historię zmian sprawozdań wraz ze statusem i komentarzem.
     $rows = db()->query(
         "SELECT id_historii, id_sprawozdania, COALESCE(data,'') AS data,
                 COALESCE(status,'oczekuje') AS status, COALESCE(komentarz,'') AS komentarz
@@ -251,6 +261,7 @@ function _raw_report_history(): array {
 }
 
 function _raw_deadlines(): array {
+    // Pobiera ćwiczenia posiadające zdefiniowane wymagania i terminy.
     $rows = db()->query(
         "SELECT id_cwiczenia, id_przedmiotu, wymagania FROM Cwiczenia WHERE wymagania IS NOT NULL"
     )->fetchAll();
@@ -276,6 +287,7 @@ function _raw_deadlines(): array {
 
 function _raw_subject_access(): array {
     $pdo = db();
+    // Pobiera nauczycieli współprowadzących przypisanych do poszczególnych przedmiotów.
     $wspol = $pdo->query(
         "SELECT w.id_przedmiotu, w.id_nauczyciela
          FROM Wspolprowadzacy w ORDER BY w.id_wspolprowadzacego"
@@ -284,6 +296,7 @@ function _raw_subject_access(): array {
     foreach ($wspol as $row) {
         $sid = $row['id_przedmiotu'];
         $tid = $row['id_nauczyciela'];
+        // Pobiera typy uprawnień danego nauczyciela dla wskazanego przedmiotu.
         $stmt = $pdo->prepare(
             "SELECT typ_uprawnienia FROM Uprawnienia WHERE id_przedmiotu=? AND id_nauczyciela=?"
         );
@@ -309,6 +322,7 @@ function _raw_subject_access(): array {
 }
 
 function _raw_sections(): array {
+    // Pobiera zapisy użytkowników do sekcji wraz z odpowiadającymi im przedmiotami.
     $rows = db()->query(
         "SELECT z.id_zapisu, z.id_uzytkownika, ss.id_przedmiotu, z.id_sekcji
          FROM Zapisy z
@@ -322,6 +336,7 @@ function _raw_sections(): array {
 }
 
 function _raw_defined_sections(): array {
+    // Pobiera zdefiniowane sekcje studentów wraz z ich nazwami i przedmiotami.
     $rows = db()->query(
         "SELECT id_sekcji, id_przedmiotu, nazwa FROM Sekcje_Studentow ORDER BY id_sekcji"
     )->fetchAll();
@@ -329,6 +344,7 @@ function _raw_defined_sections(): array {
 }
 
 function _raw_announcements(): array {
+    // Pobiera ogłoszenia wraz z ich treścią, datą, odbiorcą i autorem.
     $rows = db()->query(
         "SELECT id_ogloszenia, tytul, COALESCE(opis,'') AS opis,
                 COALESCE(data_dodania,'') AS data,
@@ -344,6 +360,7 @@ function _raw_announcements(): array {
 }
 
 function _raw_final_grades(): array {
+    // Pobiera oceny końcowe wraz z komentarzami, datami i nauczycielami.
     $rows = db()->query(
         "SELECT id_oceny_koncowej, id_studenta, id_przedmiotu,
                 COALESCE(ocena_tekstowa, ocena, '') AS val,
@@ -360,6 +377,7 @@ function _raw_final_grades(): array {
 }
 
 function _raw_uczelnie(): array {
+    // Pobiera listę uczelni uporządkowaną według ich identyfikatorów.
     $rows = db()->query("SELECT id_uczelni, nazwa FROM Uczelnia ORDER BY id_uczelni")->fetchAll();
     return array_map(fn($r) => "{$r['id_uczelni']};{$r['nazwa']}", $rows);
 }
@@ -367,6 +385,7 @@ function _raw_uczelnie(): array {
 function _raw_applications(): array {
     if (!_table_exists('Podania')) return [];
     try {
+        // Pobiera podania studentów wraz z powiązaniami, uzasadnieniem, datą i statusem.
         $rows = db()->query(
             "SELECT id_podania,
                     COALESCE(id_studenta,0)   AS id_studenta,
@@ -389,6 +408,7 @@ function _raw_applications(): array {
 function _raw_harmonogram(): array {
     if (!_table_exists('Harmonogramy')) return [];
     try {
+        // Pobiera harmonogramy ćwiczeń wraz z przedmiotami, sekcjami i terminami.
         $rows = db()->query(
             "SELECT h.id_harmonogramu, c.id_przedmiotu, h.id_sekcji, h.id_cwiczenia,
                     COALESCE(h.terminy,'') AS terminy
@@ -407,6 +427,7 @@ function _raw_harmonogram(): array {
 function _raw_logs(): array {
     if (!_table_exists('Historia_Logowania')) return [];
     try {
+        // Pobiera historię logowań wraz z użytkownikiem, adresem IP i informacjami o urządzeniu.
         $rows = db()->query(
             "SELECT data_logowania, id_uzytkownika,
                     COALESCE(adres_ip,'') AS adres_ip,
@@ -422,6 +443,7 @@ function _raw_logs(): array {
 
 function _table_exists(string $table): bool {
     try {
+        // Sprawdza, czy wskazana tabela istnieje i można wykonać na niej zapytanie.
         db()->query("SELECT 1 FROM `{$table}` LIMIT 1");
         return true;
     } catch (PDOException $e) {
