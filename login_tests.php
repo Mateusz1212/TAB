@@ -2,7 +2,7 @@
 
 declare(strict_types=1);
 
-use PHPUnit\Framework\TestCase;
+require_once __DIR__ . '/login.php';
 
 if (!function_exists('read_lines')) {
     function read_lines($file)
@@ -14,8 +14,6 @@ if (!function_exists('read_lines')) {
         return file($file, FILE_IGNORE_NEW_LINES);
     }
 }
-
-require_once __DIR__ . '/login.php';
 
 class ModelTests extends TestCase
 {
