@@ -1,21 +1,12 @@
 <?php
-// ============================================================
-//  actions.php – WERSJA MYSQL
-//  UWAGA: Plik jest dołączany przez login.php (include), a nie
-//  wywoływany bezpośrednio. session_start() i require functions.php
-//  są już wywołane przez login.php przed dołączeniem tego pliku.
-// ============================================================
 
-// $me i db() są dostępne z kontekstu login.php
 $pdo    = db();
 $action = $_REQUEST['action'] ?? '';
 
 if (!$action) {
-    // Brak akcji – pozwól login.php kontynuować renderowanie widoku
     return;
 }
 
-// ─────────────────────────────────────────────────────────────
 function redirect_with_context(string $fallback = 'login.php', string $msg = '', string $err = ''): void {
     $base = $_SERVER['HTTP_REFERER'] ?? $fallback;
     $base = preg_replace('/([?&])(msg|err)=[^&]*/', '', $base);
@@ -26,20 +17,13 @@ function redirect_with_context(string $fallback = 'login.php', string $msg = '',
     header('Location: ' . $base);
     exit;
 }
-// ─────────────────────────────────────────────────────────────
 
-// ============================================================
-//  WYLOGOWANIE
-// ============================================================
 if ($action === 'logout') {
     session_destroy();
     header('Location: login.php');
     exit;
 }
 
-// ============================================================
-//  PRZEDMIOTY
-// ============================================================
 if ($action === 'add_subject' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $name    = sanitizeString(trim($_POST['name'] ?? ''));
     $rok     = sanitizeString(trim($_POST['rok']  ?? ''));
@@ -146,9 +130,6 @@ if ($action === 'rollover_subject' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=add_subject', 'Nowy rocznik przedmiotu utworzony.');
 }
 
-// ============================================================
-//  STUDENCI
-// ============================================================
 if ($action === 'add_student' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $imie     = sanitizeString(trim($_POST['imie']      ?? ''));
     $nazwisko = sanitizeString(trim($_POST['nazwisko']  ?? ''));
@@ -207,9 +188,6 @@ if ($action === 'delete_student') {
     redirect_with_context('login.php?view_action=add_student', 'Usunięto studenta.');
 }
 
-// ============================================================
-//  ZAPIS NA PRZEDMIOT
-// ============================================================
 if ($action === 'enroll' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid        = (int)($_POST['subject_id'] ?? 0);
     $student_id = (int)($_POST['student_id'] ?? 0);
@@ -241,9 +219,6 @@ if ($action === 'unenroll') {
     redirect_with_context('login.php', 'Wypisano studenta z przedmiotu.');
 }
 
-// ============================================================
-//  ĆWICZENIA
-// ============================================================
 if ($action === 'add_exercise' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid  = (int)($_POST['subject_id'] ?? 0);
     $name = sanitizeString(trim($_POST['name'] ?? ''));
@@ -308,9 +283,6 @@ if ($action === 'reorder_exercises' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=manage_exercises&view=list&sid=' . $sid, 'Zapisano kolejność ćwiczeń.');
 }
 
-// ============================================================
-//  OCENY
-// ============================================================
 if ($action === 'add_grade' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid     = (int)($_POST['subject_id']  ?? 0);
     $st_id   = (int)($_POST['student_id']  ?? 0);
@@ -411,9 +383,6 @@ if ($action === 'apply_penalty' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=enforce_tasks&sid=' . $sid, 'Wstawiono oceny 2.00.');
 }
 
-// ============================================================
-//  OBECNOŚCI
-// ============================================================
 if ($action === 'save_exercise_att' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid  = (int)($_POST['subject_id']  ?? 0);
     $eid  = (int)($_POST['exercise_id'] ?? 0);
@@ -449,9 +418,6 @@ if ($action === 'delete_exercise_att') {
     redirect_with_context('login.php', 'Usunięto wpis obecności.');
 }
 
-// ============================================================
-//  SPRAWOZDANIA
-// ============================================================
 if ($action === 'add_report' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid   = (int)($_POST['subject_id']  ?? 0);
     $st_id = (int)($_POST['student_id']  ?? 0);
@@ -482,7 +448,6 @@ if ($action === 'add_report' && $_SERVER['REQUEST_METHOD'] === 'POST') {
          VALUES (?,'oczekuje',?,?,?,?)"
     )->execute([$rid, $date, $note, (int)$me['id']]);
 
-    // Błąd powyżej: brakuje $file_path w execute, naprawione:
     redirect_with_context('login.php?view_action=manage_reports&sid=' . $sid, 'Dodano sprawozdanie.');
 }
 
@@ -519,9 +484,6 @@ if ($action === 'delete_report_history') {
     redirect_with_context('login.php?view_action=edit_reports', 'Usunięto wpis historii.');
 }
 
-// ============================================================
-//  WYMAGANIA ZALICZENIA / DEADLINES
-// ============================================================
 if ($action === 'save_deadlines' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid  = (int)($_POST['subject_id'] ?? 0);
     $eids = $_POST['exercises'] ?? [];
@@ -547,9 +509,6 @@ if ($action === 'save_deadlines' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=manage_deadlines&sid=' . $sid, 'Zapisano wymagania zaliczenia.');
 }
 
-// ============================================================
-//  SEKCJE STUDENTÓW
-// ============================================================
 if ($action === 'add_section' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid  = (int)($_POST['subject_id']    ?? 0);
     $name = sanitizeString(trim($_POST['section_name'] ?? ''));
@@ -582,12 +541,12 @@ if ($action === 'delete_section') {
 
 if ($action === 'save_sections' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid                = (int)($_POST['subject_id'] ?? 0);
-    $submitted_sections = $_POST['sections'] ?? [];   // [student_id => section_id]
+    $submitted_sections = $_POST['sections'] ?? [];
 
     if (!$sid || !has_subject_access($sid, (int)$me['id'])) {
         redirect_with_context('login.php', '', 'Brak uprawnień.');
     }
-    // Usuń stare przypisania do sekcji tego przedmiotu
+
     $pdo->prepare(
         "DELETE z FROM Zapisy z
          JOIN Sekcje_Studentow ss ON z.id_sekcji=ss.id_sekcji
@@ -625,9 +584,6 @@ if ($action === 'move_students_section' && $_SERVER['REQUEST_METHOD'] === 'POST'
     redirect_with_context('login.php?view_action=manage_sections&sid=' . $sid, 'Przeniesiono studentów do sekcji.');
 }
 
-// ============================================================
-//  BATCH ADD STUDENTS
-// ============================================================
 if ($action === 'batch_add_students_process' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid      = (int)($_POST['subject_id']  ?? 0);
     $sec_id   = (int)($_POST['section_id']  ?? 0);
@@ -678,9 +634,6 @@ if ($action === 'batch_add_students_process' && $_SERVER['REQUEST_METHOD'] === '
     );
 }
 
-// ============================================================
-//  DOSTĘP WSPÓŁPROWADZĄCYCH
-// ============================================================
 if ($action === 'grant_access' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid = (int)($_POST['subject_id']  ?? 0);
     $tid = (int)($_POST['teacher_id']  ?? 0);
@@ -717,9 +670,6 @@ if ($action === 'revoke_access') {
     redirect_with_context('login.php?view_action=manage_access&view=details&sid=' . $sid, 'Odwołano dostęp.');
 }
 
-// ============================================================
-//  OGŁOSZENIA
-// ============================================================
 if ($action === 'add_announcement' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $title   = sanitizeString(trim($_POST['title']   ?? ''));
     $content = str_replace(["\r","\n"], ' ', sanitizeString(trim($_POST['content'] ?? '')));
@@ -749,9 +699,6 @@ if ($action === 'delete_announcement') {
     redirect_with_context('login.php?view_action=manage_announcements', 'Usunięto ogłoszenie.');
 }
 
-// ============================================================
-//  OCENY KOŃCOWE
-// ============================================================
 if ($action === 'save_final_grade' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid    = (int)($_POST['subject_id']  ?? 0);
     $st_id  = (int)($_POST['student_id']  ?? 0);
@@ -788,9 +735,6 @@ if ($action === 'delete_final_grade') {
     redirect_with_context('login.php?view_action=final_grades_view', 'Usunięto ocenę końcową.');
 }
 
-// ============================================================
-//  ZWOLNIENIA
-// ============================================================
 if ($action === 'add_exemption' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid   = (int)($_POST['subject_id']  ?? 0);
     $st_id = (int)($_POST['student_id']  ?? 0);
@@ -824,9 +768,6 @@ if ($action === 'remove_exemption') {
     redirect_with_context('login.php?view_action=manage_exemptions', 'Usunięto zwolnienie.');
 }
 
-// ============================================================
-//  ZMIANA HASŁA
-// ============================================================
 if ($action === 'change_password' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $old = sanitizeString(trim($_POST['old_password'] ?? ''));
     $new = sanitizeString(trim($_POST['new_password'] ?? ''));
@@ -842,9 +783,6 @@ if ($action === 'change_password' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=change_password_view', 'Hasło zostało zmienione.');
 }
 
-// ============================================================
-//  DODAWANIE NAUCZYCIELA
-// ============================================================
 if ($action === 'add_teacher' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $imie     = sanitizeString(trim($_POST['imie']      ?? ''));
     $nazwisko = sanitizeString(trim($_POST['nazwisko']  ?? ''));
@@ -888,9 +826,6 @@ if ($action === 'edit_teacher' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php?view_action=add_teacher_view', 'Zaktualizowano dane prowadzącego.');
 }
 
-// ============================================================
-//  PODANIA
-// ============================================================
 if ($action === 'add_application' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid      = (int)($_POST['subject_id']  ?? 0);
     $st_id    = (int)($_POST['student_id']  ?? 0);
@@ -927,9 +862,6 @@ if ($action === 'delete_application') {
     redirect_with_context('login.php?view_action=manage_applications', 'Usunięto podanie.');
 }
 
-// ============================================================
-//  HARMONOGRAM
-// ============================================================
 if ($action === 'save_harmonogram' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $sid     = (int)($_POST['subject_id']  ?? 0);
     $sec_id  = (int)($_POST['section_id']  ?? 0);
@@ -955,9 +887,6 @@ if ($action === 'delete_harmonogram') {
     redirect_with_context('login.php?view_action=harmonogram', 'Usunięto wpis harmonogramu.');
 }
 
-// ============================================================
-//  UCZELNIE
-// ============================================================
 if ($action === 'add_uczelnia' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     $name = sanitizeString(trim($_POST['name'] ?? ''));
     if ($name) {
@@ -966,6 +895,3 @@ if ($action === 'add_uczelnia' && $_SERVER['REQUEST_METHOD'] === 'POST') {
     redirect_with_context('login.php', 'Dodano uczelnię.');
 }
 
-// ============================================================
-//  Jeśli akcja była nieznana – po prostu wróć do login.php
-// ============================================================
